@@ -28,7 +28,7 @@ function TransactionForm() {
           value={description}
         />
 
-        <div className="w-full display justify-center">
+        <div className="w-full flex justify-center">
           <input type="checkbox" name="ingreso" id="" />
           <span>ingreso</span>
           <input type="checkbox" name="egreso" id="" />
