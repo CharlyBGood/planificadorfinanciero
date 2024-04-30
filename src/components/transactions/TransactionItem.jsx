@@ -5,14 +5,15 @@ export function TransactionItem({ transaction }) {
   return (
     <li className="bg-zinc-600 text-white px-3 py-1 rounded-lg mb-2 w-full flex justify-between item-center">
       <p className="text-sm">{transaction.description}</p>
-      <div>
+      <div className="flex w-full justify-between item-center">
         <span>${transaction.amount}</span>
         <button
+        className="p-2"
           onClick={() => {
             deleteTransaction(transaction.id);
           }}
         >
-          x
+          X
         </button>
       </div>
     </li>

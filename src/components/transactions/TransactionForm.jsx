@@ -28,11 +28,15 @@ function TransactionForm() {
           value={description}
         />
 
-        <div className="w-full flex justify-center">
-          <input type="checkbox" name="ingreso" id="" />
-          <span>ingreso</span>
-          <input type="checkbox" name="egreso" id="" />
-          <span>egreso</span>
+        <div className="w-full flex justify-evenly">
+          <div>
+            <span className="m-2">ingreso</span>
+            <input type="checkbox" name="ingreso" id="Ingreso" />
+          </div>
+          <div>
+            <span className="m-2">egreso</span>
+            <input type="checkbox" name="egreso" id="Egreso" />
+          </div>
         </div>
 
         <input
@@ -44,7 +48,7 @@ function TransactionForm() {
           value={amount}
         />
         <button className="bg-indigo-700 text-white px-3 py-2 rounded-lg block mb-2 w-full">
-          Add Transaction
+          Agregar
         </button>
       </form>
     </div>

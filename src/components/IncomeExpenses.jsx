@@ -16,12 +16,12 @@ function IncomeExpenses() {
       .toFixed(2) * -1;
   return (
     <>
-      <div className="flex justify-between my-2">
-        <h4>Income</h4>
+      <div className="flex justify-between">
+        <h4>Entrada</h4>
         <p>${income}</p>
       </div>
-      <div className="flex justify-between my-2">
-        <h4>Expense</h4>
+      <div className="flex justify-between">
+        <h4>Gasto</h4>
         <p>${expense}</p>
       </div>
     </>
