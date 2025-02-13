@@ -1,4 +1,4 @@
-.main-container {
+/* .main-container {
   width: 95%;
   margin: 0 auto;
   display: flex;
@@ -12,10 +12,10 @@
   padding: .5em;
   justify-content: center;
   align-items: center;
-}
+} */
 
 
-@media screen and (max-device-width: 670px) {
+/* @media screen and (max-device-width: 670px) {
   .forms-container {
     flex-direction: column;
     padding: .5em !important;
@@ -25,4 +25,4 @@
     height: 100vh;
     padding: 0;
   }
-}
+} */

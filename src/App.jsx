@@ -9,20 +9,23 @@ import './App.css'
 function App() {
   return (
     <GlobalProvider>
-      <div className="main-container">
-
-        <div className="forms-container">
-          <div className="flex-1 p-1">
-            <IncomeExpenses />
-            <Balance />
-            <TransactionForm />
-          </div>
-          <div className="p-4 w-2/4">
-            <ExpenseChart />
-            <TransactionList />
+      <div className="bg-neutral-950 text-white h-screen flex justify-center items-center">
+        <div className="w-2/5 flex justify-center items-center">
+          <div className="bg-neutral-800 p-10 rounded-md w-full">
+            <Header />
+            <div className="flex flex-col md:flex-row justify-between gap-4">
+              <div className="flex-1">
+                <IncomeExpenses />
+                <Balance />
+                <TransactionForm />
+              </div>
+              <div className="flex-1 flex flex-col">
+                <ExpenseChart />
+                <TransactionList />
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
     </GlobalProvider>
   );
