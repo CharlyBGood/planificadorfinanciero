@@ -9,12 +9,11 @@
 }
 
 html,
-body, #root {
+body {
   font-size: 16px;
-  background-color: rgba(14, 2, 26, 0.81);
+  background-color: #000;
   margin: 0;
   padding: 0;
   max-width: 100%;
   color: #f0f8ff;
-  height: 100%;
 }

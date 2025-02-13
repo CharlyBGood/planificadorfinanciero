@@ -11,7 +11,7 @@ function App() {
   return (
     <GlobalProvider>
       <div className="bg-neutral-950 text-white flex justify-center items-center h-full">
-        <div className="bg-neutral-800 p-10 rounded-md h-full">
+        <div className="bg-neutral-800 p-10 rounded-md">
           <Header />
           <div className="flex flex-col md:flex-row justify-between gap-4">
             <div className="flex-1">
