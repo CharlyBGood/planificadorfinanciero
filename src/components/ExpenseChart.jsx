@@ -13,11 +13,6 @@ export function ExpenseChart() {
     .filter((transaction) => transaction.amount < 0)
     .reduce((acc, transaction) => (acc += transaction.amount), 0) * -1;
 
-  console.log({
-    totalIncomes,
-    totalExpenses
-  });
-
   const expensesPercentage = Math.round((totalExpenses / totalIncomes) * 100);
   const incomesPercentage = 100 - (expensesPercentage);
 
@@ -35,7 +30,7 @@ export function ExpenseChart() {
   return (
     <div className="bg-zinc-950">
       <VictoryPie
-        colorScale={["#e74c13", "#2ecc71"]}
+        colorScale={["#fd204d", "#51bd20"]}
         data={[
           { x: "Expenses", y: expensesPercentage },
           { x: "Incomes", y: incomesPercentage },

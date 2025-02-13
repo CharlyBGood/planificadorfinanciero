@@ -3,7 +3,7 @@ import { BiTrash } from "react-icons/bi"
 
 export function TransactionItem({ transaction: { id, description, amount } }) {
   const { deleteTransaction } = useGlobalState();
-  const sign = amount > 0 ? "-" : "+";
+  const sign = amount < 0 ? "-" : "+";
 
   return (
     <li
