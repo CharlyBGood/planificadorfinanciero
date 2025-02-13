@@ -13,7 +13,7 @@ export function TransactionItem({ transaction: { id, description, amount } }) {
         ` ${amount < 0 ? "bg-red-700" : "bg-green-700"}`
       }>
       {description}
-      <div className="flex w-full justify-between item-center">
+      <div className="flex justify-between item-center">
         <span>
           {sign}${Math.abs(amount)}
         </span>

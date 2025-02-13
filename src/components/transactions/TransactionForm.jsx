@@ -43,39 +43,33 @@ export function TransactionForm() {
           className="bg-zinc-600 text-white px-3 py-2 rounded-lg block mb-2 w-full"
           value={description}
         />
-
         <div className="w-full flex justify-evenly">
-          <div>
-            <span className="m-2">Ingreso</span>
-            <input
-              type="checkbox"
-              name="ingreso"
-              id="Ingreso"
-              checked={isIncome}
-              onChange={(e) => {
-                setIsIncome(e.target.checked);
-                if (e.target.checked) setIsExpense(false);
-              }}
-            />
-          </div>
-          <div>
-            <span className="m-2">Egreso</span>
-            <input
-              type="checkbox"
-              name="egreso"
-              id="Egreso"
-              checked={isExpense}
-              onChange={(e) => {
-                setIsExpense(e.target.checked);
-                if (e.target.checked) setIsIncome(false);
-              }}
-            />
-          </div>
+          <label>Ingreso</label>
+          <input
+            type="checkbox"
+            name="ingreso"
+            id="Ingreso"
+            checked={isIncome}
+            onChange={(e) => {
+              setIsIncome(e.target.checked);
+              if (e.target.checked) setIsExpense(false);
+            }}
+          />
+          <label>Egreso</label>
+          <input
+            type="checkbox"
+            name="egreso"
+            id="Egreso"
+            checked={isExpense}
+            onChange={(e) => {
+              setIsExpense(e.target.checked);
+              if (e.target.checked) setIsIncome(false);
+            }}
+          />
         </div>
-
         <input
           id="amount"
-          className="bg-zinc-600 text-white px-3 py-2 rounded-lg block mb-2 w-full"
+          className="bg-zinc-600 text-white px-3 py-2 rounded-lg block mb-2 mt-2 w-full"
           type="number"
           step="0.01"
           placeholder="0.00"
