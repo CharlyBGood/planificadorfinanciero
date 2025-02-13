@@ -21,12 +21,6 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("transactions", JSON.stringify(state));
   }, [state]);
-  const addTransaction = (transaction) => {
-    dispatch({
-      type: "ADD_TRANSACTION",
-      payload: transaction,
-    });
-  };
 
   const deleteTransaction = (id) => {
     dispatch({
@@ -35,12 +29,19 @@ export const GlobalProvider = ({ children }) => {
     });
   };
 
+  const addTransaction = (transaction) => {
+    dispatch({
+      type: "ADD_TRANSACTION",
+      payload: transaction,
+    });
+  };  
+
   return (
     <Context.Provider
       value={{
         transactions: state.transactions,
-        addTransaction,
         deleteTransaction,
+        addTransaction,        
       }}
     >
       {children}
