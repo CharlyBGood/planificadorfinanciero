@@ -5,14 +5,14 @@ export function TransactionForm() {
   const { addTransaction } = useGlobalState();
 
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState(""); // Set initial state to an empty string
+  const [amount, setAmount] = useState("");
   const [isIncome, setIsIncome] = useState(false);
   const [isExpense, setIsExpense] = useState(false);
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    let finalAmount = parseFloat(amount); // Parse the amount as a float
+    let finalAmount = parseFloat(amount);
     if (isExpense) {
       finalAmount = -Math.abs(finalAmount);
     } else if (isIncome) {
@@ -26,7 +26,7 @@ export function TransactionForm() {
     });
 
     setDescription("");
-    setAmount(""); // Reset amount to an empty string
+    setAmount(""); 
     setIsIncome(false);
     setIsExpense(false);
   };
