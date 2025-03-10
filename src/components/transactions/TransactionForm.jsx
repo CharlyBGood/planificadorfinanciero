@@ -10,9 +10,11 @@ export function TransactionForm() {
   const [amount, setAmount] = useState("")
   const [isIncome, setIsIncome] = useState(false)
   const [isExpense, setIsExpense] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
+    setSubmitting(true)
 
     let finalAmount = Number.parseFloat(amount)
     if (isExpense) {
@@ -21,8 +23,7 @@ export function TransactionForm() {
       finalAmount = Math.abs(finalAmount)
     }
 
-    addTransaction({
-      id: window.crypto.randomUUID(),
+    await addTransaction({
       description,
       amount: finalAmount,
     })
@@ -31,6 +32,7 @@ export function TransactionForm() {
     setAmount("")
     setIsIncome(false)
     setIsExpense(false)
+    setSubmitting(false)
   }
 
   return (
@@ -89,10 +91,17 @@ export function TransactionForm() {
           value={description}
         />
         <button
-          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors"
-          disabled={!description || !amount || (!isIncome && !isExpense)}
+          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          disabled={!description || !amount || (!isIncome && !isExpense) || submitting}
         >
-          Agregar
+          {submitting ? (
+            <span className="flex items-center justify-center">
+              <span className="animate-spin h-5 w-5 mr-2 border-t-2 border-b-2 border-white rounded-full"></span>
+              Agregando...
+            </span>
+          ) : (
+            "Agregar"
+          )}
         </button>
       </form>
     </div>

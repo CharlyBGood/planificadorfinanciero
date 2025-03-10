@@ -40,6 +40,7 @@ export const GlobalProvider = ({ children }) => {
         const { data, error } = await supabase
           .from("transactions")
           .select("*")
+          .eq("user_id", currentUser.id)
           .order("created_at", { ascending: false })
 
         if (error) throw error
@@ -59,26 +60,61 @@ export const GlobalProvider = ({ children }) => {
 
     fetchTransactions()
 
-    // Subscribe to real-time changes
-    const subscription = supabase
-      .channel("transactions-changes")
+    // Set up real-time subscription with direct state updates
+    const channel = supabase
+      .channel("public:transactions")
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "transactions",
           filter: `user_id=eq.${currentUser.id}`,
         },
-        () => {
-          // Refetch transactions when changes occur
-          fetchTransactions()
+        (payload) => {
+          // Add new transaction directly to state
+          dispatch({
+            type: "ADD_TRANSACTION",
+            payload: payload.new,
+          })
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "transactions",
+          filter: `user_id=eq.${currentUser.id}`,
+        },
+        (payload) => {
+          // Remove deleted transaction directly from state
+          dispatch({
+            type: "DELETE_TRANSACTION",
+            payload: payload.old.id,
+          })
+        },
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "transactions",
+          filter: `user_id=eq.${currentUser.id}`,
+        },
+        (payload) => {
+          // Update modified transaction directly in state
+          dispatch({
+            type: "UPDATE_TRANSACTION",
+            payload: payload.new,
+          })
         },
       )
       .subscribe()
 
     return () => {
-      subscription.unsubscribe()
+      supabase.removeChannel(channel)
     }
   }, [currentUser])
 
