@@ -1,7 +1,8 @@
 export function Header() {
   return (
-    <div className="text-4x1 font-bold text-center my-5">
-      <h1>Calculador de Gastos e Ingresos</h1>
+    <div className="bg-neutral-900 py-6 px-4 text-center">
+      <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Planificador Financiero</h1>
     </div>
   )
 }
+

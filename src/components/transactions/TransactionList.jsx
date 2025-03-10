@@ -1,28 +1,25 @@
-import { useGlobalState } from "../../contexts/GlobalState";
-import { TransactionItem } from "./TransactionItem";
+import { useGlobalState } from "../../contexts/GlobalState"
+import { TransactionItem } from "./TransactionItem"
 
 export function TransactionList() {
-  const { transactions } = useGlobalState();
-  if (transactions.length === 0) {
-    return (
-      <div className="bg-zinc-900 p-4 my-2">
-        <div className="h-full flex items-center justify-center w-full flex-col">
-          <h1 className="text-xl font-bold my-2">
-            Aún no hay valores
-          </h1>
-        </div>
-      </div>
-    );
-  }
+  const { transactions } = useGlobalState()
 
   return (
-    <div className="bg-zinc-900 p-4">
-      <h3 className="text-slate-300 text-xl font-bold my-2 text-center">Ingresos/Egresos</h3>
-      <ul>
-        {transactions.map((transaction) => (
-          <TransactionItem key={transaction.id} transaction={transaction} />
-        ))}
-      </ul>
+    <div className="bg-zinc-900 p-4 rounded-lg">
+      <h3 className="text-xl font-bold mb-4 text-center">Historial de Transacciones</h3>
+
+      {transactions.length === 0 ? (
+        <div className="py-8 flex items-center justify-center w-full flex-col">
+          <h1 className="text-lg font-medium text-neutral-400">Aún no hay transacciones</h1>
+        </div>
+      ) : (
+        <ul className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
+          {transactions.map((transaction) => (
+            <TransactionItem key={transaction.id} transaction={transaction} />
+          ))}
+        </ul>
+      )}
     </div>
-  );
+  )
 }
+

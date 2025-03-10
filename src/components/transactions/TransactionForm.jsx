@@ -1,68 +1,79 @@
-import { useState } from "react";
-import { useGlobalState } from "../../contexts/GlobalState";
+"use client"
+
+import { useState } from "react"
+import { useGlobalState } from "../../contexts/GlobalState"
 
 export function TransactionForm() {
-  const { addTransaction } = useGlobalState();
+  const { addTransaction } = useGlobalState()
 
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [isIncome, setIsIncome] = useState(false);
-  const [isExpense, setIsExpense] = useState(false);
+  const [description, setDescription] = useState("")
+  const [amount, setAmount] = useState("")
+  const [isIncome, setIsIncome] = useState(false)
+  const [isExpense, setIsExpense] = useState(false)
 
   const onSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    let finalAmount = parseFloat(amount);
+    let finalAmount = Number.parseFloat(amount)
     if (isExpense) {
-      finalAmount = -Math.abs(finalAmount);
+      finalAmount = -Math.abs(finalAmount)
     } else if (isIncome) {
-      finalAmount = Math.abs(finalAmount);
+      finalAmount = Math.abs(finalAmount)
     }
 
     addTransaction({
       id: window.crypto.randomUUID(),
       description,
       amount: finalAmount,
-    });
+    })
 
-    setDescription("");
-    setAmount(""); 
-    setIsIncome(false);
-    setIsExpense(false);
-  };
+    setDescription("")
+    setAmount("")
+    setIsIncome(false)
+    setIsExpense(false)
+  }
 
   return (
     <div>
       <form onSubmit={onSubmit}>
-        <div className="w-full flex justify-evenly">
-          <label>Ingreso</label>
-          <input
-            type="checkbox"
-            name="ingreso"
-            className="cursor-pointer"
-            id="Ingreso"
-            checked={isIncome}
-            onChange={(e) => {
-              setIsIncome(e.target.checked);
-              if (e.target.checked) setIsExpense(false);
-            }}
-          />
-          <label>Egreso</label>
-          <input
-            type="checkbox"
-            className="cursor-pointer"
-            name="egreso"
-            id="Egreso"
-            checked={isExpense}
-            onChange={(e) => {
-              setIsExpense(e.target.checked);
-              if (e.target.checked) setIsIncome(false);
-            }}
-          />
-        </div>        
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              name="ingreso"
+              className="w-5 h-5 cursor-pointer accent-green-500"
+              id="Ingreso"
+              checked={isIncome}
+              onChange={(e) => {
+                setIsIncome(e.target.checked)
+                if (e.target.checked) setIsExpense(false)
+              }}
+            />
+            <label htmlFor="Ingreso" className="text-lg cursor-pointer">
+              Ingreso
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              className="w-5 h-5 cursor-pointer accent-red-500"
+              name="egreso"
+              id="Egreso"
+              checked={isExpense}
+              onChange={(e) => {
+                setIsExpense(e.target.checked)
+                if (e.target.checked) setIsIncome(false)
+              }}
+            />
+            <label htmlFor="Egreso" className="text-lg cursor-pointer">
+              Egreso
+            </label>
+          </div>
+        </div>
         <input
           id="amount"
-          className="bg-zinc-600 text-white px-3 py-2 rounded-lg block mb-2 mt-2 w-full"
+          className="bg-zinc-600 text-white px-4 py-3 rounded-lg block mb-3 w-full text-lg"
           type="number"
           step="0.01"
           placeholder="Monto: ej: 0.00"
@@ -74,16 +85,17 @@ export function TransactionForm() {
           type="text"
           placeholder="Descripción"
           onChange={(e) => setDescription(e.target.value)}
-          className="bg-zinc-600 text-white px-3 py-2 rounded-lg block mb-2 mt-2 w-full"
+          className="bg-zinc-600 text-white px-4 py-3 rounded-lg block mb-4 w-full text-lg"
           value={description}
         />
         <button
-          className="bg-indigo-700 text-white px-3 py-2 rounded-lg block mb-2 w-full"
+          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors"
           disabled={!description || !amount || (!isIncome && !isExpense)}
         >
           Agregar
         </button>
       </form>
     </div>
-  );
+  )
 }
+
