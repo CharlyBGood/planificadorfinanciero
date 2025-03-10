@@ -60,55 +60,26 @@ export const GlobalProvider = ({ children }) => {
 
     fetchTransactions()
 
-    // Set up real-time subscription with direct state updates
+    // Set up real-time subscription
     const channel = supabase
       .channel("public:transactions")
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "transactions",
           filter: `user_id=eq.${currentUser.id}`,
         },
         (payload) => {
-          // Add new transaction directly to state
-          dispatch({
-            type: "ADD_TRANSACTION",
-            payload: payload.new,
-          })
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "transactions",
-          filter: `user_id=eq.${currentUser.id}`,
-        },
-        (payload) => {
-          // Remove deleted transaction directly from state
-          dispatch({
-            type: "DELETE_TRANSACTION",
-            payload: payload.old.id,
-          })
-        },
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "transactions",
-          filter: `user_id=eq.${currentUser.id}`,
-        },
-        (payload) => {
-          // Update modified transaction directly in state
-          dispatch({
-            type: "UPDATE_TRANSACTION",
-            payload: payload.new,
-          })
+          // Handle different event types
+          if (payload.eventType === "INSERT") {
+            dispatch({ type: "ADD_TRANSACTION", payload: payload.new })
+          } else if (payload.eventType === "DELETE") {
+            dispatch({ type: "DELETE_TRANSACTION", payload: payload.old.id })
+          } else if (payload.eventType === "UPDATE") {
+            dispatch({ type: "UPDATE_TRANSACTION", payload: payload.new })
+          }
         },
       )
       .subscribe()
@@ -118,56 +89,87 @@ export const GlobalProvider = ({ children }) => {
     }
   }, [currentUser])
 
-  // Add transaction to Supabase
+  // Add transaction to Supabase with optimistic update
   const addTransaction = async (transaction) => {
     if (!currentUser) return
 
-    dispatch({ type: "SET_LOADING", payload: true })
+    // Generate a temporary ID
+    const tempId = Date.now().toString()
+
+    // Create the transaction object
+    const newTransaction = {
+      id: tempId,
+      description: transaction.description,
+      amount: transaction.amount,
+      user_id: currentUser.id,
+      created_at: new Date().toISOString(),
+    }
+
+    // Optimistically update UI
+    dispatch({ type: "ADD_TRANSACTION", payload: newTransaction })
 
     try {
-      const { error } = await supabase.from("transactions").insert([
-        {
-          description: transaction.description,
-          amount: transaction.amount,
-          user_id: currentUser.id,
-          created_at: new Date().toISOString(),
-        },
-      ])
+      // Send to Supabase
+      const { data, error } = await supabase
+        .from("transactions")
+        .insert([
+          {
+            description: transaction.description,
+            amount: transaction.amount,
+            user_id: currentUser.id,
+            created_at: new Date().toISOString(),
+          },
+        ])
+        .select()
 
       if (error) throw error
 
-      // The transaction will be added via the subscription
+      // If successful, update the temporary transaction with the real one
+      if (data && data[0]) {
+        dispatch({ type: "REPLACE_TRANSACTION", payload: { tempId, newTransaction: data[0] } })
+      }
     } catch (error) {
       console.error("Error adding transaction:", error)
+
+      // If failed, remove the optimistic transaction
+      dispatch({ type: "DELETE_TRANSACTION", payload: tempId })
+
       dispatch({
         type: "SET_ERROR",
         payload: "Error al agregar la transacción",
       })
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
     }
   }
 
-  // Delete transaction from Supabase
+  // Delete transaction from Supabase with optimistic update
   const deleteTransaction = async (id) => {
     if (!currentUser) return
 
-    dispatch({ type: "SET_LOADING", payload: true })
+    // Find the transaction to be deleted
+    const transactionToDelete = state.transactions.find((t) => t.id === id)
+
+    if (!transactionToDelete) return
+
+    // Optimistically remove from UI
+    dispatch({ type: "DELETE_TRANSACTION", payload: id })
 
     try {
+      // Delete from Supabase
       const { error } = await supabase.from("transactions").delete().eq("id", id).eq("user_id", currentUser.id)
 
       if (error) throw error
 
-      // The transaction will be removed via the subscription
+      // Success is handled by the optimistic update
     } catch (error) {
       console.error("Error deleting transaction:", error)
+
+      // If failed, add the transaction back
+      dispatch({ type: "ADD_TRANSACTION", payload: transactionToDelete })
+
       dispatch({
         type: "SET_ERROR",
         payload: "Error al eliminar la transacción",
       })
-    } finally {
-      dispatch({ type: "SET_LOADING", payload: false })
     }
   }
 
@@ -186,3 +188,4 @@ export const GlobalProvider = ({ children }) => {
     </Context.Provider>
   )
 }
+

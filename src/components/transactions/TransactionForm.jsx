@@ -14,6 +14,11 @@ export function TransactionForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
+
+    if (!description || !amount || (!isIncome && !isExpense)) {
+      return
+    }
+
     setSubmitting(true)
 
     let finalAmount = Number.parseFloat(amount)
@@ -23,11 +28,13 @@ export function TransactionForm() {
       finalAmount = Math.abs(finalAmount)
     }
 
-    await addTransaction({
+    // No need to await since we're using optimistic updates
+    addTransaction({
       description,
       amount: finalAmount,
     })
 
+    // Reset form immediately for better UX
     setDescription("")
     setAmount("")
     setIsIncome(false)

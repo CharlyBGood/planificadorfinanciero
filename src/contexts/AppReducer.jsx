@@ -22,6 +22,13 @@ export default (state, action) => {
           transaction.id === action.payload.id ? action.payload : transaction,
         ),
       }
+    case "REPLACE_TRANSACTION":
+      return {
+        ...state,
+        transactions: state.transactions.map((transaction) =>
+          transaction.id === action.payload.tempId ? action.payload.newTransaction : transaction,
+        ),
+      }
     case "SET_LOADING":
       return {
         ...state,
@@ -36,3 +43,4 @@ export default (state, action) => {
       return state
   }
 }
+
