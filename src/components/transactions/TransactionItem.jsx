@@ -23,8 +23,9 @@ export function TransactionItem({ transaction: { id, description, amount } }) {
   return (
     <>
       <li
-        className={`px-4 py-3 rounded-lg w-full flex justify-between items-center ${isExpense ? "bg-red-500/90" : "bg-green-500/90"
-          }`}
+        className={`px-4 py-3 rounded-lg w-full flex justify-between items-center ${
+          isExpense ? "bg-red-500/90" : "bg-green-500/90"
+        }`}
       >
         <span className="font-medium text-black truncate max-w-[60%]">{description}</span>
         <div className="flex items-center gap-2">

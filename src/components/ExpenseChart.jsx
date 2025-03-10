@@ -2,15 +2,18 @@ import { VictoryPie, VictoryLabel } from "victory"
 import { useGlobalState } from "../contexts/GlobalState"
 import { BsPieChartFill } from "react-icons/bs"
 
-export function ExpenseChart() {
+export function ExpenseChart({ categoryId }) {
   const { transactions } = useGlobalState()
 
-  const totalIncomes = transactions
+  // Filter transactions by category if categoryId is provided
+  const filteredTransactions = categoryId ? transactions.filter((t) => t.category_id === categoryId) : transactions
+
+  const totalIncomes = filteredTransactions
     .filter((transaction) => transaction.amount > 0)
     .reduce((acc, transaction) => (acc += transaction.amount), 0)
 
   const totalExpenses =
-    transactions
+    filteredTransactions
       .filter((transaction) => transaction.amount < 0)
       .reduce((acc, transaction) => (acc += transaction.amount), 0) * -1
 

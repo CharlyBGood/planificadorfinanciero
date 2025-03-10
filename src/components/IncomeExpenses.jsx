@@ -1,9 +1,12 @@
 import { useGlobalState } from "../contexts/GlobalState"
 
-export function IncomeExpenses() {
+export function IncomeExpenses({ categoryId }) {
   const { transactions } = useGlobalState()
 
-  const amounts = transactions.map((transaction) => transaction.amount)
+  // Filter transactions by category if categoryId is provided
+  const filteredTransactions = categoryId ? transactions.filter((t) => t.category_id === categoryId) : transactions
+
+  const amounts = filteredTransactions.map((transaction) => transaction.amount)
 
   const income = amounts
     .filter((item) => item > 0)

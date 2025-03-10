@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useGlobalState } from "../../contexts/GlobalState"
 
-export function TransactionForm() {
+export function TransactionForm({ categoryId }) {
   const { addTransaction } = useGlobalState()
 
   const [description, setDescription] = useState("")
@@ -28,10 +28,11 @@ export function TransactionForm() {
       finalAmount = Math.abs(finalAmount)
     }
 
-    // No need to await since we're using optimistic updates
+    // Add the categoryId to the transaction
     addTransaction({
       description,
       amount: finalAmount,
+      category_id: categoryId,
     })
 
     // Reset form immediately for better UX

@@ -1,9 +1,12 @@
 import { useGlobalState } from "../contexts/GlobalState"
 
-export function Balance() {
+export function Balance({ categoryId }) {
   const { transactions } = useGlobalState()
 
-  const amounts = transactions.map((transaction) => transaction.amount)
+  // Filter transactions by category if categoryId is provided
+  const filteredTransactions = categoryId ? transactions.filter((t) => t.category_id === categoryId) : transactions
+
+  const amounts = filteredTransactions.map((transaction) => transaction.amount)
   const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2)
 
   return (
