@@ -18,6 +18,10 @@ export function CategoryView({ category, onBack }) {
 
   // Refresh category data when needed
   useEffect(() => {
+    console.log("Current category:", currentCategory)
+  }, [currentCategory])
+
+  useEffect(() => {
     const fetchCategory = async () => {
       try {
         const { data, error } = await supabase.from("categories").select("*").eq("id", category.id).single()
@@ -25,6 +29,7 @@ export function CategoryView({ category, onBack }) {
         if (error) throw error
 
         if (data) {
+          console.log("Fetched category data:", data) // Add this line
           setCurrentCategory(data)
         }
       } catch (err) {

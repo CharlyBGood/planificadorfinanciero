@@ -28,6 +28,9 @@ export function TransactionForm({ categoryId }) {
       finalAmount = Math.abs(finalAmount)
     }
 
+    // Add console log to verify categoryId
+    console.log("Creating transaction with category_id:", categoryId)
+
     // Add the categoryId to the transaction
     addTransaction({
       description,
