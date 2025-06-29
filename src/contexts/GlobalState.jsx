@@ -118,6 +118,7 @@ export const GlobalProvider = ({ children }) => {
             amount: transaction.amount,
             user_id: currentUser.id,
             created_at: new Date().toISOString(),
+            category_id: transaction.category_id, 
           },
         ])
         .select()
