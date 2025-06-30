@@ -28,17 +28,12 @@ export function TransactionForm({ categoryId }) {
       finalAmount = Math.abs(finalAmount)
     }
 
-    // Add console log to verify categoryId
-    console.log("Creating transaction with category_id:", categoryId)
-
-    // Add the categoryId to the transaction
     addTransaction({
       description,
       amount: finalAmount,
       category_id: categoryId,
     })
 
-    // Reset form immediately for better UX
     setDescription("")
     setAmount("")
     setIsIncome(false)
@@ -48,21 +43,23 @@ export function TransactionForm({ categoryId }) {
 
   return (
     <div>
-      <form onSubmit={onSubmit}>
-        <div className="flex items-center justify-between mb-4 gap-2">
+      <form onSubmit={onSubmit} aria-label="Formulario de nueva transacción">
+        <fieldset className="flex items-center justify-between mb-4 gap-2" aria-label="Tipo de transacción">
+          <legend className="sr-only">Tipo de transacción</legend>
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
               name="ingreso"
-              className="w-5 h-5 cursor-pointer accent-green-500"
+              className="w-5 h-5 cursor-pointer accent-green-500 focus:ring-2 focus:ring-green-400 focus:outline-none"
               id="Ingreso"
               checked={isIncome}
+              aria-checked={isIncome}
               onChange={(e) => {
                 setIsIncome(e.target.checked)
                 if (e.target.checked) setIsExpense(false)
               }}
             />
-            <label htmlFor="Ingreso" className="text-lg cursor-pointer">
+            <label htmlFor="Ingreso" className="text-lg cursor-pointer select-none">
               Ingreso
             </label>
           </div>
@@ -70,40 +67,59 @@ export function TransactionForm({ categoryId }) {
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              className="w-5 h-5 cursor-pointer accent-red-500"
+              className="w-5 h-5 cursor-pointer accent-red-500 focus:ring-2 focus:ring-red-400 focus:outline-none"
               name="egreso"
               id="Egreso"
               checked={isExpense}
+              aria-checked={isExpense}
               onChange={(e) => {
                 setIsExpense(e.target.checked)
                 if (e.target.checked) setIsIncome(false)
               }}
             />
-            <label htmlFor="Egreso" className="text-lg cursor-pointer">
+            <label htmlFor="Egreso" className="text-lg cursor-pointer select-none">
               Egreso
             </label>
           </div>
+        </fieldset>
+        <div className="mb-3">
+          <label htmlFor="amount" className="block text-sm font-medium mb-1">
+            Monto
+          </label>
+          <input
+            id="amount"
+            className="bg-zinc-600 text-white px-4 py-3 rounded-lg block w-full text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            type="number"
+            step="0.01"
+            placeholder="Ej: 0.00"
+            onChange={(e) => setAmount(e.target.value)}
+            value={amount}
+            required
+            aria-required="true"
+            min="0"
+          />
         </div>
-        <input
-          id="amount"
-          className="bg-zinc-600 text-white px-4 py-3 rounded-lg block mb-3 w-full text-lg"
-          type="number"
-          step="0.01"
-          placeholder="Monto: ej: 0.00"
-          onChange={(e) => setAmount(e.target.value)}
-          value={amount}
-        />
-        <input
-          id="description"
-          type="text"
-          placeholder="Descripción"
-          onChange={(e) => setDescription(e.target.value)}
-          className="bg-zinc-600 text-white px-4 py-3 rounded-lg block mb-4 w-full text-lg"
-          value={description}
-        />
+        <div className="mb-4">
+          <label htmlFor="description" className="block text-sm font-medium mb-1">
+            Descripción
+          </label>
+          <input
+            id="description"
+            type="text"
+            placeholder="Descripción"
+            onChange={(e) => setDescription(e.target.value)}
+            className="bg-zinc-600 text-white px-4 py-3 rounded-lg block w-full text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            value={description}
+            required
+            aria-required="true"
+            maxLength={100}
+          />
+        </div>
         <button
-          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-400"
           disabled={!description || !amount || (!isIncome && !isExpense) || submitting}
+          type="submit"
+          aria-disabled={!description || !amount || (!isIncome && !isExpense) || submitting}
         >
           {submitting ? (
             <span className="flex items-center justify-center">
