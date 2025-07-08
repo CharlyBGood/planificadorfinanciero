@@ -8,8 +8,9 @@ import { CreateCategoryModal } from "./CreateCategoryModal"
 import { DocumentForm } from "../documents/DocumentForm" // Nuevo componente (deberás crearlo)
 import { DocumentList } from "../documents/DocumentList" // Integración de lista de documentos
 import { PlusCircle, FileText } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
-export function Dashboard({ onCategorySelect, onDocumentSelect }) {
+export function Dashboard() {
   const { currentUser } = useAuth()
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -18,6 +19,7 @@ export function Dashboard({ onCategorySelect, onDocumentSelect }) {
   const [isCreateDocumentOpen, setIsCreateDocumentOpen] = useState(false)
   const [createType, setCreateType] = useState(null) // 'category' o 'document'
   const [activeTab, setActiveTab] = useState("objetivos") // 'objetivos' o 'documentos'
+  const navigate = useNavigate()
 
   // Fetch categories
   useEffect(() => {
@@ -161,12 +163,12 @@ export function Dashboard({ onCategorySelect, onDocumentSelect }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
-              <CategoryCard key={category.id} category={category} onClick={() => onCategorySelect(category)} onDelete={handleDeleteCategory} />
+              <CategoryCard key={category.id} category={category} onClick={() => navigate(`/category/${category.id}`)} onDelete={handleDeleteCategory} />
             ))}
           </div>
         )
       ) : (
-        <DocumentList onSelect={onDocumentSelect} />
+        <DocumentList onSelect={(doc) => navigate(`/document/${doc.id}`)} />
       )}
 
       <CreateCategoryModal

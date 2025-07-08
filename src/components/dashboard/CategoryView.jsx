@@ -10,56 +10,51 @@ import { ExpenseChart } from "../ExpenseChart"
 import { EditCategoryModal } from "./EditCategoryModal"
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
+import { useParams, useNavigate } from "react-router-dom"
 
-export function CategoryView({ category, onBack }) {
+export function CategoryView() {
+  const { id } = useParams()
+  const navigate = useNavigate()
   const { currentUser } = useAuth()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [currentCategory, setCurrentCategory] = useState(category)
-
-  // Refresh category data when needed
-  useEffect(() => {
-    console.log("Current category:", currentCategory)
-  }, [currentCategory])
+  const [currentCategory, setCurrentCategory] = useState(null)
 
   useEffect(() => {
+    if (!id || !currentUser) return
     const fetchCategory = async () => {
       try {
-        const { data, error } = await supabase.from("categories").select("*").eq("id", category.id).single()
-
+        const { data, error } = await supabase.from("categories").select("*").eq("id", id).eq("user_id", currentUser.id).single()
         if (error) throw error
-
-        if (data) {
-          console.log("Fetched category data:", data) // Add this line
-          setCurrentCategory(data)
-        }
+        setCurrentCategory(data)
       } catch (err) {
-        console.error("Error fetching category:", err)
+        setCurrentCategory(null)
       }
     }
-
     fetchCategory()
-
     // Set up real-time subscription for this category
     const channel = supabase
-      .channel(`public:categories:${category.id}`)
+      .channel(`public:categories:${id}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "categories",
-          filter: `id=eq.${category.id}`,
+          filter: `id=eq.${id}`,
         },
         () => {
           fetchCategory()
         },
       )
       .subscribe()
-
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [category.id])
+  }, [id, currentUser])
+
+  if (!currentCategory) {
+    return <div className="p-8 text-center text-neutral-400">Cargando objetivo...</div>
+  }
 
   const handleUpdateCategory = async (updatedData) => {
     try {
@@ -71,7 +66,7 @@ export function CategoryView({ category, onBack }) {
           target_amount: updatedData.targetAmount || null,
           color: updatedData.color,
         })
-        .eq("id", category.id)
+        .eq("id", currentCategory.id)
         .eq("user_id", currentUser.id)
 
       if (error) throw error
@@ -85,7 +80,7 @@ export function CategoryView({ category, onBack }) {
   const handleDeleteCategory = async () => {
     if (!window.confirm(`¿Seguro que deseas eliminar el objetivo "${currentCategory.name}"? Esta acción no se puede deshacer.`)) return
     await supabase.from("categories").delete().eq("id", currentCategory.id).eq("user_id", currentUser.id)
-    if (onBack) onBack()
+    navigate(-1)
   }
 
   return (
@@ -95,7 +90,7 @@ export function CategoryView({ category, onBack }) {
         style={{ borderBottom: `2px solid ${currentCategory.color || "#6366F1"}` }}
       >
         <button
-          onClick={onBack}
+          onClick={() => navigate(-1)}
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-indigo-600 text-neutral-200 hover:text-white font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
           aria-label="Volver al Dashboard"
         >

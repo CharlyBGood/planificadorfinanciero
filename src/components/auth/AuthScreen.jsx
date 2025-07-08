@@ -1,11 +1,25 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useAuth } from "../../contexts/AuthContext"
+import { useNavigate, useLocation } from "react-router-dom"
 import { LoginForm } from "./LoginForm"
 import { RegisterForm } from "./RegisterForm"
 
 export function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true)
+  const { currentUser } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (currentUser) {
+      // Si está en una ruta pública, redirigir a dashboard
+      if (["/", "/auth", "/#", "#", ""].includes(location.pathname + location.hash)) {
+        navigate("/dashboard", { replace: true })
+      }
+    }
+  }, [currentUser, navigate, location])
 
   const toggleForm = () => {
     setIsLogin(!isLogin)

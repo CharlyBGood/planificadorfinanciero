@@ -3,8 +3,11 @@ import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 import { ArrowLeft } from "lucide-react"
 import { EditDocumentForm } from "./EditDocumentForm"
+import { useParams, useNavigate } from "react-router-dom"
 
-export function DocumentView({ documentId, onBack }) {
+export function DocumentView() {
+  const { id } = useParams()
+  const navigate = useNavigate()
   const { currentUser } = useAuth()
   const [document, setDocument] = useState(null)
   const [items, setItems] = useState([])
@@ -13,14 +16,14 @@ export function DocumentView({ documentId, onBack }) {
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   useEffect(() => {
-    if (!documentId || !currentUser) return
+    if (!id || !currentUser) return
     const fetchDocument = async () => {
       setLoading(true)
       setError(null)
       const { data: doc, error: docError } = await supabase
         .from("documents")
         .select("*")
-        .eq("id", documentId)
+        .eq("id", id)
         .eq("user_id", currentUser.id)
         .single()
       if (docError) {
@@ -32,12 +35,12 @@ export function DocumentView({ documentId, onBack }) {
       const { data: itemsData } = await supabase
         .from("document_items")
         .select("*")
-        .eq("document_id", documentId)
+        .eq("document_id", id)
       setItems(itemsData || [])
       setLoading(false)
     }
     fetchDocument()
-  }, [documentId, currentUser])
+  }, [id, currentUser])
 
   if (loading) return <div className="p-8 text-center text-neutral-400">Cargando documento...</div>
   if (error) return <div className="p-8 text-center text-red-400">{error}</div>
@@ -46,7 +49,7 @@ export function DocumentView({ documentId, onBack }) {
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto w-full">
       <button
-        onClick={onBack}
+        onClick={() => navigate(-1)}
         className="mb-3 sm:mb-4 flex items-center gap-2 text-neutral-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded text-sm sm:text-base"
         aria-label="Volver a documentos"
       >
@@ -132,7 +135,7 @@ export function DocumentView({ documentId, onBack }) {
         {/* Botón para descargar PDF (opcional, funcionalidad futura) */}
         {/* <button className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">Descargar PDF</button> */}
         {isEditOpen && (
-          <EditDocumentForm documentId={documentId} onClose={() => setIsEditOpen(false)} onSaved={() => { setIsEditOpen(false); window.location.reload(); }} />
+          <EditDocumentForm documentId={id} onClose={() => setIsEditOpen(false)} onSaved={() => { setIsEditOpen(false); window.location.reload(); }} />
         )}
       </div>
     </div>

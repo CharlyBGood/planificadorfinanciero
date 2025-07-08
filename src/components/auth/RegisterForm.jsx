@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { supabase } from "../../supabase/config"
+import { FcGoogle } from "react-icons/fc"
 
 export function RegisterForm({ onToggleForm }) {
   const [email, setEmail] = useState("")
@@ -40,6 +41,24 @@ export function RegisterForm({ onToggleForm }) {
     } catch (err) {
       setError(err.message)
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleRegister = async () => {
+    setError(null)
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
+      })
+      if (error) throw error
+      // Redirect happens automatically
+    } catch (err) {
+      setError(err.message)
       setLoading(false)
     }
   }
@@ -101,6 +120,21 @@ export function RegisterForm({ onToggleForm }) {
           {loading ? "Creando cuenta..." : "Registrarse"}
         </button>
       </form>
+
+      <div className="my-4 flex items-center">
+        <div className="flex-grow h-px bg-neutral-600"></div>
+        <span className="px-3 text-neutral-400 text-sm">O</span>
+        <div className="flex-grow h-px bg-neutral-600"></div>
+      </div>
+
+      <button
+        onClick={handleGoogleRegister}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 bg-white text-black py-3 rounded-md font-medium hover:bg-gray-100 disabled:opacity-70"
+      >
+        <FcGoogle className="text-xl" />
+        Continuar con Google
+      </button>
 
       <p className="mt-4 text-center text-sm text-neutral-400">
         ¿Ya tienes una cuenta?{" "}

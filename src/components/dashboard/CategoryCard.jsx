@@ -58,62 +58,53 @@ export function CategoryCard({ category, onClick, onDelete }) {
 
   return (
     <div
-      className="bg-neutral-700 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ver detalles de ${category.name}`}
+      className="bg-neutral-800 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-neutral-700 transition-colors relative flex flex-col gap-2"
       onClick={onClick}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
-      style={{ borderTop: `4px solid ${category.color || "#6366F1"}` }}
+      tabIndex={0}
+      role="button"
+      aria-label={`Ver objetivo ${category.name}`}
     >
-      <div className="p-3 sm:p-5 flex-1 flex flex-col">
-        <div className="flex items-center justify-between mb-2 gap-2">
-          <h3 className="text-lg sm:text-xl font-bold break-words" style={{ color: category.color || "#6366F1" }}>
-            {category.name}
-          </h3>
-          <button
-            type="button"
-            className="p-2 rounded-full hover:bg-red-100/20 focus:outline-none focus:ring-2 focus:ring-red-400 transition-colors"
-            aria-label={`Eliminar objetivo ${category.name}`}
-            onClick={handleDelete}
-            disabled={deleting}
-            tabIndex={0}
-          >
-            <Trash2 className="text-red-500 w-5 h-5" />
-          </button>
-        </div>
-        {category.description && <p className="text-neutral-300 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">{category.description}</p>}
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-bold text-white break-words" style={{ color: category.color || undefined }}>{category.name}</h3>
         {loading ? (
-          <div className="space-y-2">
-            <div className="h-4 bg-neutral-600 rounded animate-pulse"></div>
-            <div className="h-4 bg-neutral-600 rounded animate-pulse w-3/4"></div>
-          </div>
+          <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-indigo-400"></div>
         ) : (
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-sm sm:text-base">
-              <span className="text-neutral-400">Balance:</span>
-              <span className={`font-bold ${stats.balance >= 0 ? "text-green-400" : "text-red-400"}`}>
-                ${stats.balance.toFixed(2)}
-              </span>
-            </div>
-            {category.target_amount && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>Progreso</span>
-                  <span>{progressPercentage.toFixed(0)}%</span>
-                </div>
-                <div className="w-full bg-neutral-600 rounded-full h-2.5">
-                  <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: `${progressPercentage}%` }}></div>
-                </div>
-                <div className="flex justify-between text-xs text-neutral-400">
-                  <span>${stats.balance.toFixed(2)}</span>
-                  <span>Meta: ${category.target_amount.toFixed(2)}</span>
-                </div>
-              </div>
-            )}
-          </div>
+          <span className="text-xs text-neutral-400">{stats.transactionCount} transacciones</span>
         )}
       </div>
+      <div className="flex flex-col gap-1">
+        {loading ? (
+          <div className="h-4 bg-neutral-700 rounded w-1/2 animate-pulse mb-1"></div>
+        ) : (
+          <>
+            <div className="flex justify-between text-sm">
+              <span className="text-green-400">+${stats.income.toFixed(2)}</span>
+              <span className="text-red-400">-${stats.expense.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-300">Balance:</span>
+              <span className={stats.balance >= 0 ? "text-green-400" : "text-red-400"}>{stats.balance >= 0 ? "+" : "-"}${Math.abs(stats.balance).toFixed(2)}</span>
+            </div>
+          </>
+        )}
+      </div>
+      {category.target_amount && !loading && (
+        <div className="mt-2">
+          <div className="w-full bg-neutral-700 rounded-full h-2.5 mb-1">
+            <div
+              className="h-2.5 rounded-full"
+              style={{
+                width: `${progressPercentage}%`,
+                backgroundColor: category.color || "#6366F1",
+              }}
+            ></div>
+          </div>
+          <div className="flex justify-between text-xs text-neutral-400">
+            <span>Meta: ${category.target_amount.toFixed(2)}</span>
+            <span>{progressPercentage.toFixed(0)}%</span>
+          </div>
+        </div>
+      )}
       <div className="bg-neutral-800 p-2 sm:p-3 flex flex-col sm:flex-row justify-between items-center border-t border-neutral-600 gap-1 sm:gap-0">
         <span className="text-xs sm:text-sm text-neutral-400">{stats.transactionCount} transacciones</span>
         <span className="text-indigo-400 flex items-center gap-1 text-xs sm:text-sm font-medium">
