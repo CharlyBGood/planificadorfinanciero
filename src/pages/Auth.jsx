@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { useNavigate, useLocation } from "react-router-dom"
+import { supabase } from "../supabase/config"
 
 function LoginForm({ onToggleForm }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { supabase } = useAuth() || {} // fallback if not in context
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -95,7 +95,6 @@ function RegisterForm({ onToggleForm }) {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { supabase } = useAuth() || {}
 
   const handleRegister = async (e) => {
     e.preventDefault()

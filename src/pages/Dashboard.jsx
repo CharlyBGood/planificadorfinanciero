@@ -93,68 +93,70 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-100 dark:bg-neutral-950">
-      <div className="flex-1 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8 p-2 sm:p-4">
-        <div className="flex w-full sm:w-auto gap-2 justify-center sm:justify-end">
-          <button
-            onClick={() => setActiveTab("objetivos")}
-            className={`flex-1 sm:flex-none min-w-[120px] max-w-xs px-4 py-2 rounded-lg font-semibold transition-colors text-base ${activeTab === "objetivos" ? "bg-indigo-600 text-white" : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"}`}
-            aria-current={activeTab === "objetivos"}
-          >
-            Objetivos
-          </button>
-          <button
-            onClick={() => setActiveTab("documentos")}
-            className={`flex-1 sm:flex-none min-w-[120px] max-w-xs px-4 py-2 rounded-lg font-semibold transition-colors text-base ${activeTab === "documentos" ? "bg-green-600 text-white" : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"}`}
-            aria-current={activeTab === "documentos"}
-          >
-            Documentos
-          </button>
+    <main className="bg-neutral-100 dark:bg-neutral-950 min-h-[1px] w-full p-2 sm:p-4">
+      <section className="w-full max-w-5xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+          <div className="flex w-full sm:w-auto gap-2 justify-center sm:justify-end">
+            <button
+              onClick={() => setActiveTab("objetivos")}
+              className={`flex-1 sm:flex-none min-w-[100px] max-w-xs px-3 py-2 rounded-lg font-semibold transition-colors text-base ${activeTab === "objetivos" ? "bg-indigo-600 text-white" : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"}`}
+              aria-current={activeTab === "objetivos"}
+            >
+              Objetivos
+            </button>
+            <button
+              onClick={() => setActiveTab("documentos")}
+              className={`flex-1 sm:flex-none min-w-[100px] max-w-xs px-3 py-2 rounded-lg font-semibold transition-colors text-base ${activeTab === "documentos" ? "bg-green-600 text-white" : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"}`}
+              aria-current={activeTab === "documentos"}
+            >
+              Documentos
+            </button>
+          </div>
+          <div className="flex w-full sm:w-auto gap-2 justify-center sm:justify-end">
+            <button
+              onClick={() => { setCreateType('category'); setIsCreateModalOpen(true); }}
+              className="flex-1 sm:flex-none min-w-[100px] max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
+              aria-label="Nuevo Objetivo"
+            >
+              <PlusCircle size={18} />
+              <span>Nuevo Objetivo</span>
+            </button>
+            <button
+              onClick={() => { setCreateType('document'); setIsCreateDocumentOpen(true); }}
+              className="flex-1 sm:flex-none min-w-[100px] max-w-xs bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
+              aria-label="Nueva Factura/Recibo/Orden"
+            >
+              <FileText size={18} />
+              <span>Nueva Factura/Recibo</span>
+            </button>
+          </div>
         </div>
-        <div className="flex w-full sm:w-auto gap-2 justify-center sm:justify-end mt-2 sm:mt-0">
-          <button
-            onClick={() => { setCreateType('category'); setIsCreateModalOpen(true); }}
-            className="flex-1 sm:flex-none min-w-[120px] max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
-            aria-label="Nuevo Objetivo"
-          >
-            <PlusCircle size={18} />
-            <span>Nuevo Objetivo</span>
-          </button>
-          <button
-            onClick={() => { setCreateType('document'); setIsCreateDocumentOpen(true); }}
-            className="flex-1 sm:flex-none min-w-[120px] max-w-xs bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
-            aria-label="Nueva Factura/Recibo/Orden"
-          >
-            <FileText size={18} />
-            <span>Nueva Factura/Recibo</span>
-          </button>
-        </div>
-      </div>
-      <div className="flex-1 flex flex-col justify-center items-center">
-        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-lg mb-6">{error}</div>}
-        {activeTab === "objetivos" ? (
-          categories.length === 0 ? (
-            <div className="bg-neutral-700 rounded-lg p-8 text-center">
-              <h3 className="text-xl font-medium mb-4">No tienes objetivos financieros</h3>
-              <p className="text-neutral-400 mb-6">Crea tu primer objetivo para comenzar a gestionar tus finanzas</p>
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors"
-              >
-                <PlusCircle size={20} />
-                <span>Crear Objetivo</span>
-              </button>
-            </div>
+        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg mb-4 text-center">{error}</div>}
+        <div className="w-full">
+          {activeTab === "objetivos" ? (
+            categories.length === 0 ? (
+              <div className="bg-neutral-700 rounded-lg p-6 text-center mx-auto max-w-md">
+                <h3 className="text-lg font-medium mb-2">No tienes objetivos financieros</h3>
+                <p className="text-neutral-400 mb-4">Crea tu primer objetivo para comenzar a gestionar tus finanzas</p>
+                <button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
+                >
+                  <PlusCircle size={18} />
+                  <span>Crear Objetivo</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categories.map((category) => (
+                  <CategoryCard key={category.id} category={category} onClick={() => navigate(`/category/${category.id}`)} onDelete={handleDeleteCategory} />
+                ))}
+              </div>
+            )
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} onClick={() => navigate(`/category/${category.id}`)} onDelete={handleDeleteCategory} />
-              ))}
-            </div>
-          )
-        ) : (
-          <DocumentList onSelect={(doc) => navigate(`/document/${doc.id}`)} />
-        )}
+            <DocumentList onSelect={(doc) => navigate(`/document/${doc.id}`)} />
+          )}
+        </div>
         <CreateCategoryModal
           isOpen={isCreateModalOpen && createType === 'category'}
           onClose={() => setIsCreateModalOpen(false)}
@@ -163,7 +165,7 @@ export default function Dashboard() {
         {isCreateDocumentOpen && createType === 'document' && (
           <DocumentForm isOpen={isCreateDocumentOpen} onClose={() => setIsCreateDocumentOpen(false)} />
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }
