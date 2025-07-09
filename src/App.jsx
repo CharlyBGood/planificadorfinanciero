@@ -14,7 +14,8 @@ import Dashboard from "./pages/Dashboard"
 import "./App.css"
 
 function PrivateRoute({ children }) {
-  const { currentUser } = useAuth()
+  const { currentUser, loading } = useAuth()
+  if (loading) return null // o un loader/spinner si prefieres
   return currentUser ? children : <Navigate to="/auth" />
 }
 
