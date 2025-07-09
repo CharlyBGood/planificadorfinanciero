@@ -84,14 +84,14 @@ export function CategoryView() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white">
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-300">
       <div
         className="p-2 sm:p-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 border-b"
         style={{ borderBottom: `2px solid ${currentCategory.color || "#6366F1"}` }}
       >
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-indigo-600 text-neutral-200 hover:text-white font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-indigo-100 dark:hover:bg-indigo-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
           aria-label="Volver al Dashboard"
         >
           <ArrowLeft size={18} />
@@ -101,7 +101,7 @@ export function CategoryView() {
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-indigo-600 text-neutral-200 hover:text-white font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-indigo-100 dark:hover:bg-indigo-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
             aria-label="Editar objetivo"
             title="Editar objetivo"
           >
@@ -110,7 +110,7 @@ export function CategoryView() {
           </button>
           <button
             onClick={handleDeleteCategory}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-neutral-800 hover:bg-red-600 text-neutral-200 hover:text-white font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all text-sm sm:text-base"
+            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-red-200 dark:hover:bg-red-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all text-sm sm:text-base"
             aria-label="Eliminar objetivo"
             title="Eliminar objetivo"
           >
@@ -122,16 +122,16 @@ export function CategoryView() {
 
       <div className="p-2 sm:p-4 md:p-6 lg:p-8 max-w-4xl mx-auto w-full">
         <div className="mb-6">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-1 break-words">{currentCategory.name}</h2>
-          {currentCategory.description && <p className="text-neutral-400 mt-1 text-sm sm:text-base">{currentCategory.description}</p>}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-1 break-words" style={{ color: currentCategory.color || undefined }}>{currentCategory.name}</h2>
+          {currentCategory.description && <p className="text-[var(--color-text-secondary)] mt-1 text-sm sm:text-base">{currentCategory.description}</p>}
 
           {currentCategory.target_amount && (
-            <div className="mt-4 bg-neutral-800 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="mt-4 bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <div className="flex flex-col sm:flex-row justify-between mb-2 gap-2">
                 <span className="text-sm sm:text-base">Progreso hacia la meta</span>
-                <span className="font-semibold text-indigo-300">${currentCategory.target_amount.toFixed(2)}</span>
+                <span className="font-semibold text-indigo-600 dark:text-indigo-300">${currentCategory.target_amount.toFixed(2)}</span>
               </div>
-              <div className="w-full bg-neutral-700 rounded-full h-2.5 mb-1">
+              <div className="w-full bg-neutral-300 dark:bg-neutral-700 rounded-full h-2.5 mb-1">
                 <div
                   className="h-2.5 rounded-full"
                   style={{
@@ -147,22 +147,22 @@ export function CategoryView() {
         {/* Main content - mobile first, responsive grid */}
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
           <div className="w-full lg:w-1/2 space-y-4 lg:space-y-6">
-            <div className="bg-neutral-800 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <IncomeExpenses categoryId={currentCategory.id} />
               <Balance categoryId={currentCategory.id} />
             </div>
-            <div className="bg-neutral-800 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <h3 className="text-xl font-bold mb-3 sm:mb-4">Nueva Transacción</h3>
               <TransactionForm categoryId={currentCategory.id} />
             </div>
           </div>
 
           <div className="w-full lg:w-1/2 space-y-4 lg:space-y-6">
-            <div className="bg-neutral-800 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <h3 className="text-xl font-bold mb-2 text-center">Distribución</h3>
               <ExpenseChart categoryId={currentCategory.id} />
             </div>
-            <div className="bg-neutral-800 p-3 sm:p-4 rounded-xl shadow-sm">
+            <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <TransactionList categoryId={currentCategory.id} />
             </div>
           </div>

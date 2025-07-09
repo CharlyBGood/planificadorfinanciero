@@ -47,17 +47,17 @@ export function DocumentView() {
   if (!document) return null
 
   return (
-    <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto w-full">
+    <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto w-full bg-[var(--color-bg-secondary)] text-[var(--color-text)] rounded-lg shadow-lg transition-colors duration-300">
       <button
         onClick={() => navigate(-1)}
-        className="mb-3 sm:mb-4 flex items-center gap-2 text-neutral-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded text-sm sm:text-base"
+        className="mb-3 sm:mb-4 flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-indigo-600 dark:hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded text-sm sm:text-base"
         aria-label="Volver a documentos"
       >
         <ArrowLeft size={20} />
         <span className="sr-only">Volver a documentos</span>
         <span>Volver</span>
       </button>
-      <div className="bg-neutral-800 rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
+      <div className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
         <div className="flex justify-end mb-2">
           <button
             onClick={() => setIsEditOpen(true)}
@@ -68,13 +68,13 @@ export function DocumentView() {
           </button>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-2">
-          <div className="text-base sm:text-lg font-bold text-white text-left">{document.company_name || <span className="text-neutral-400 font-normal">(Sin empresa)</span>}</div>
-          <div className="text-sm sm:text-xl font-bold text-indigo-400 text-right uppercase">{document.type}</div>
+          <div className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</div>
+          <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
         </div>
-        <h2 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2 break-words">{document.title || document.type}</h2>
-        <div className="text-neutral-400 mb-1 sm:mb-2 text-xs sm:text-base">Cliente: <span className="text-white">{document.client_name}</span></div>
-        <div className="text-neutral-400 mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-white">{document.created_at?.slice(0,10)}</span></div>
-        <div className="text-neutral-400 mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-white">{document.type}</span></div>
+        <h2 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2 break-words text-[var(--color-text)]">{document.title || document.type}</h2>
+        <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Cliente: <span className="text-[var(--color-text)]">{document.client_name}</span></div>
+        <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-[var(--color-text)]">{document.created_at?.slice(0,10)}</span></div>
+        <div className="text-[var(--color-text-secondary)] mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-[var(--color-text)]">{document.type}</span></div>
         <div className="overflow-x-auto mt-2">
           <table className="min-w-full text-xs sm:text-sm text-left">
             <thead>
@@ -106,7 +106,7 @@ export function DocumentView() {
             const total = items.filter(i => i.currency === curr).reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
             if (total > 0) {
               return (
-                <span key={curr} className="text-base sm:text-lg font-bold text-white">
+                <span key={curr} className="text-base sm:text-lg font-bold text-[var(--color-text)]">
                   Total {symbol}: {symbol}{total.toFixed(2)}
                 </span>
               );
@@ -123,9 +123,9 @@ export function DocumentView() {
             const saldo = total - paid;
             if (total > 0) {
               return (
-                <span key={curr} className="text-xs sm:text-base font-semibold">
-                  <span className="mr-2">Pagado {symbol}: <span className="text-green-400">{symbol}{paid.toFixed(2)}</span></span>
-                  <span>Pendiente: <span className={saldo > 0 ? "text-red-400" : "text-green-400"}>{symbol}{saldo.toFixed(2)}</span></span>
+                <span key={curr} className="text-xs sm:text-base font-semibold text-[var(--color-text)]">
+                  <span className="mr-2">Pagado {symbol}: <span className="text-green-600 dark:text-green-400">{symbol}{paid.toFixed(2)}</span></span>
+                  <span>Pendiente: <span className={saldo > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}>{symbol}{saldo.toFixed(2)}</span></span>
                 </span>
               );
             }

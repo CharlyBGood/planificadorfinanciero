@@ -13,8 +13,8 @@ export default function Home() {
   }, [currentUser, navigate])
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-white">
-      <div className="max-w-xl w-full bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-8 flex flex-col items-center gap-6">
+    <main className="bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-white min-h-[1px] w-full p-4 flex justify-center">
+      <div className="max-w-xl w-full bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-6 sm:p-8 flex flex-col items-center gap-6 mx-auto">
         <h1 className="text-3xl sm:text-4xl font-bold text-center text-indigo-700 dark:text-white mb-2">
           ¡Te damos la bienvenida!
         </h1>
@@ -27,6 +27,6 @@ export default function Home() {
           </Link>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

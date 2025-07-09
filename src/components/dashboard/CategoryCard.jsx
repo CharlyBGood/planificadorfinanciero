@@ -58,39 +58,40 @@ export function CategoryCard({ category, onClick, onDelete }) {
 
   return (
     <div
-      className="bg-neutral-800 rounded-lg p-4 shadow-lg cursor-pointer hover:bg-neutral-700 transition-colors relative flex flex-col gap-2"
+      className="bg-[var(--color-bg-secondary)] rounded-lg p-4 shadow-lg cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors relative flex flex-col gap-2"
       onClick={onClick}
       tabIndex={0}
       role="button"
       aria-label={`Ver objetivo ${category.name}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onClick && onClick(e); }}
     >
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-bold text-white break-words" style={{ color: category.color || undefined }}>{category.name}</h3>
+        <h3 className="text-lg font-bold text-[var(--color-text)] break-words" style={{ color: category.color || undefined }}>{category.name}</h3>
         {loading ? (
           <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-indigo-400"></div>
         ) : (
-          <span className="text-xs text-neutral-400">{stats.transactionCount} transacciones</span>
+          <span className="text-xs text-[var(--color-text-secondary)]">{stats.transactionCount} transacciones</span>
         )}
       </div>
       <div className="flex flex-col gap-1">
         {loading ? (
-          <div className="h-4 bg-neutral-700 rounded w-1/2 animate-pulse mb-1"></div>
+          <div className="h-4 bg-neutral-300 dark:bg-neutral-700 rounded w-1/2 animate-pulse mb-1"></div>
         ) : (
           <>
             <div className="flex justify-between text-sm">
-              <span className="text-green-400">+${stats.income.toFixed(2)}</span>
-              <span className="text-red-400">-${stats.expense.toFixed(2)}</span>
+              <span className="text-green-600 dark:text-green-400">+${stats.income.toFixed(2)}</span>
+              <span className="text-red-600 dark:text-red-400">-${stats.expense.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-neutral-300">Balance:</span>
-              <span className={stats.balance >= 0 ? "text-green-400" : "text-red-400"}>{stats.balance >= 0 ? "+" : "-"}${Math.abs(stats.balance).toFixed(2)}</span>
+              <span className="text-[var(--color-text-secondary)]">Balance:</span>
+              <span className={stats.balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>{stats.balance >= 0 ? "+" : "-"}${Math.abs(stats.balance).toFixed(2)}</span>
             </div>
           </>
         )}
       </div>
       {category.target_amount && !loading && (
         <div className="mt-2">
-          <div className="w-full bg-neutral-700 rounded-full h-2.5 mb-1">
+          <div className="w-full bg-neutral-300 dark:bg-neutral-700 rounded-full h-2.5 mb-1">
             <div
               className="h-2.5 rounded-full"
               style={{
@@ -99,15 +100,15 @@ export function CategoryCard({ category, onClick, onDelete }) {
               }}
             ></div>
           </div>
-          <div className="flex justify-between text-xs text-neutral-400">
+          <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
             <span>Meta: ${category.target_amount.toFixed(2)}</span>
             <span>{progressPercentage.toFixed(0)}%</span>
           </div>
         </div>
       )}
-      <div className="bg-neutral-800 p-2 sm:p-3 flex flex-col sm:flex-row justify-between items-center border-t border-neutral-600 gap-1 sm:gap-0">
-        <span className="text-xs sm:text-sm text-neutral-400">{stats.transactionCount} transacciones</span>
-        <span className="text-indigo-400 flex items-center gap-1 text-xs sm:text-sm font-medium">
+      <div className="bg-[var(--color-bg)] p-2 sm:p-3 flex flex-col sm:flex-row justify-between items-center border-t border-[var(--color-border)] gap-1 sm:gap-0">
+        <span className="text-xs sm:text-sm text-[var(--color-text-secondary)]">{stats.transactionCount} transacciones</span>
+        <span className="text-indigo-600 dark:text-indigo-400 flex items-center gap-1 text-xs sm:text-sm font-medium">
           Ver detalles <ArrowRight size={16} />
         </span>
       </div>

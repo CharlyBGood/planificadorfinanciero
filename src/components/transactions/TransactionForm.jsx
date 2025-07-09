@@ -108,7 +108,7 @@ export function TransactionForm({ categoryId }) {
             type="text"
             placeholder="Descripción"
             onChange={(e) => setDescription(e.target.value)}
-            className="bg-zinc-600 text-white px-4 py-3 rounded-lg block w-full text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="bg-app-secondary text-app px-4 py-3 rounded-lg block w-full text-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 border border-app"
             value={description}
             required
             aria-required="true"

@@ -22,15 +22,15 @@ export function ExpenseChart({ categoryId }) {
 
   if (totalIncomes === 0 && totalExpenses === 0) {
     return (
-      <div className="bg-zinc-900 p-6 rounded-lg flex items-center justify-center flex-col">
-        <BsPieChartFill className="text-6xl md:text-8xl text-neutral-700" />
-        <h1 className="text-xl md:text-2xl font-bold my-3 text-neutral-400">Aún no hay datos</h1>
+      <div className="bg-app p-6 rounded-lg flex items-center justify-center flex-col">
+        <BsPieChartFill className="text-6xl md:text-8xl text-app-secondary" />
+        <h1 className="text-xl md:text-2xl font-bold my-3 text-app-secondary">Aún no hay datos</h1>
       </div>
     )
   }
 
   return (
-    <div className="bg-zinc-900 rounded-lg p-2">
+    <div className="bg-app rounded-lg p-2">
       <VictoryPie
         colorScale={["#fd204d", "#51bd20"]}
         data={[

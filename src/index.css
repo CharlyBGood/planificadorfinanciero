@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =====================
+   Centralized Color Variables
+   ===================== */
+:root {
+  --color-bg: theme('colors.neutral.100');
+  --color-bg-secondary: theme('colors.white');
+  --color-text: theme('colors.neutral.900');
+  --color-text-secondary: theme('colors.neutral.700');
+  --color-border: theme('colors.neutral.300');
+  --color-scrollbar-track: #e5e7eb; /* neutral-200 */
+  --color-scrollbar-thumb: #a3a3a3; /* neutral-400 */
+}
+:root.dark {
+  --color-bg: theme('colors.neutral.950');
+  --color-bg-secondary: theme('colors.neutral.900');
+  --color-text: theme('colors.white');
+  --color-text-secondary: theme('colors.neutral.300');
+  --color-border: theme('colors.neutral.800');
+  --color-scrollbar-track: #262626; /* neutral-800 */
+  --color-scrollbar-thumb: #525252; /* neutral-600 */
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -11,11 +33,12 @@
 html,
 body {
   font-size: 16px;
-  background-color: #000;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s, color 0.3s;
   margin: 0;
   padding: 0;
   max-width: 100%;
-  color: #f0f8ff;
   height: 100%;
 }
 
@@ -23,25 +46,24 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
-/* Custom scrollbar for transaction list */
+/* Custom scrollbar using variables */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #333;
+  background: var(--color-scrollbar-track);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #666;
+  background: var(--color-scrollbar-thumb);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #888;
+  background: var(--color-border);
 }
 
 /* Disable arrows on number inputs */
@@ -50,10 +72,12 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
 input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 /* Animation utilities */
@@ -94,3 +118,29 @@ input[type="number"] {
 .duration-200 {
   animation-duration: 200ms;
 }
+
+/* Utilidades para fondos y textos centralizados */
+.bg-app {
+  background-color: var(--color-bg) !important;
+}
+.bg-app-secondary {
+  background-color: var(--color-bg-secondary) !important;
+}
+.text-app {
+  color: var(--color-text) !important;
+}
+.text-app-secondary {
+  color: var(--color-text-secondary) !important;
+}
+.border-app {
+  border-color: var(--color-border) !important;
+}
+
+/*
+  PATRÓN CENTRALIZADO MODO CLARO/OSCURO:
+  - Solo usar clases Tailwind y variantes dark: en componentes.
+  - Nunca usar colores fijos en CSS ni inline.
+  - El toggle de tema solo cambia la clase 'dark' en <html>.
+  - Todos los wrappers y detalles visuales heredan colores de html/body.
+  - Scrollbars y detalles usan variables CSS dependientes de .dark.
+*/

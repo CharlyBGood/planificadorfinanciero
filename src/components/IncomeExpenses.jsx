@@ -17,11 +17,11 @@ export function IncomeExpenses({ categoryId }) {
 
   return (
     <>
-      <div className="flex justify-between items-center my-3 p-2 bg-neutral-800 rounded">
+      <div className="flex justify-between items-center my-3 p-2 bg-app-secondary rounded">
         <h4 className="text-lg font-medium text-green-400">Ingreso</h4>
         <p className="text-xl font-bold">${income}</p>
       </div>
-      <div className="flex justify-between items-center my-3 p-2 bg-neutral-800 rounded">
+      <div className="flex justify-between items-center my-3 p-2 bg-app-secondary rounded">
         <h4 className="text-lg font-medium text-red-400">Gasto</h4>
         <p className="text-xl font-bold">${expense}</p>
       </div>

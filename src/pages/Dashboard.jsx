@@ -5,7 +5,8 @@ import { CategoryCard } from "../components/dashboard/CategoryCard"
 import { CreateCategoryModal } from "../components/dashboard/CreateCategoryModal"
 import { DocumentForm } from "../components/documents/DocumentForm"
 import { DocumentList } from "../components/documents/DocumentList"
-import { PlusCircle, FileText } from "lucide-react"
+import PlusCircleIcon from "../components/utilities/PlusCircleIcon"
+import FileTextIcon from "../components/utilities/FileTextIcon"
 import { useNavigate } from "react-router-dom"
 
 export default function Dashboard() {
@@ -118,7 +119,7 @@ export default function Dashboard() {
               className="flex-1 sm:flex-none min-w-[100px] max-w-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
               aria-label="Nuevo Objetivo"
             >
-              <PlusCircle size={18} />
+              <PlusCircleIcon className="w-5 h-5" />
               <span>Nuevo Objetivo</span>
             </button>
             <button
@@ -126,7 +127,7 @@ export default function Dashboard() {
               className="flex-1 sm:flex-none min-w-[100px] max-w-xs bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 transition-colors text-base justify-center"
               aria-label="Nueva Factura/Recibo/Orden"
             >
-              <FileText size={18} />
+              <FileTextIcon className="w-5 h-5" />
               <span>Nueva Factura/Recibo</span>
             </button>
           </div>
@@ -142,7 +143,7 @@ export default function Dashboard() {
                   onClick={() => setIsCreateModalOpen(true)}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
                 >
-                  <PlusCircle size={18} />
+                  <PlusCircleIcon className="w-5 h-5" />
                   <span>Crear Objetivo</span>
                 </button>
               </div>
