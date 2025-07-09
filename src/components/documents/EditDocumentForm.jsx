@@ -116,12 +116,12 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
   if (!documentId || !form) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-2xl p-3 sm:p-6 animate-in fade-in zoom-in duration-200 overflow-y-auto max-h-[98vh]">
-        <h3 className="text-xl font-bold mb-3 sm:mb-4 text-white">Editar Documento</h3>
-        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-4">{error}</div>}
-        {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-4">{success}</div>}
-        <form onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-2 sm:p-4">
+      <div className="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-2xl p-3 sm:p-6 animate-in fade-in zoom-in duration-200 max-h-[98vh] overflow-y-auto flex flex-col justify-center">
+        <h3 className="text-lg xs:text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white text-center leading-tight">Editar Documento</h3>
+        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-4 text-xs sm:text-sm">{error}</div>}
+        {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-4 text-xs sm:text-sm">{success}</div>}
+        <form onSubmit={handleSubmit} className="flex flex-col justify-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <div>
               <label className="block text-sm font-medium mb-1 text-white">Empresa emisora *</label>

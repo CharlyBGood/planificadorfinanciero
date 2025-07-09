@@ -9,7 +9,7 @@ export function DocumentForm({ isOpen, onClose }) {
   const [clientEmail, setClientEmail] = useState("")
   const [description, setDescription] = useState("")
   const [items, setItems] = useState([
-    { description: "", quantity: 1, unit_price: 0, currency: "ARS", bonificado: false },
+    { description: "", quantity: 1, unit_price: 0, currency: "PESOS" },
   ])
   const [paymentMethod, setPaymentMethod] = useState("")
   // Cambios: pagos diferenciados por moneda
@@ -26,7 +26,7 @@ export function DocumentForm({ isOpen, onClose }) {
   }
 
   const handleAddItem = () => {
-    setItems([...items, { description: "", quantity: 1, unit_price: 0, currency: "ARS", bonificado: false }])
+    setItems([...items, { description: "", quantity: 1, unit_price: 0, currency: "PESOS" }])
   }
 
   const handleRemoveItem = (idx) => {
@@ -36,13 +36,18 @@ export function DocumentForm({ isOpen, onClose }) {
   // Calcular totales y pagos por moneda
   const getTotalsByCurrency = (currency) => {
     const total = items.filter(i => i.currency === currency).reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0)
-    const paid = currency === "ARS" ? Number(paidARS) : Number(paidUSD)
+    // Aceptar ambos nombres para compatibilidad, pero usar paidARS/paidUSD en el estado
+    const paid = currency === "PESOS" ? Number(paidARS) : Number(paidUSD)
     return { total, paid, due: total - paid }
   }
 
-  const totalARS = getTotalsByCurrency("ARS")
+  const totalPESOS = getTotalsByCurrency("PESOS")
   const totalUSD = getTotalsByCurrency("USD")
-  const total = totalARS.total + totalUSD.total
+  const usesBoth = totalPESOS.total > 0 && totalUSD.total > 0
+  const usesOnlyPESOS = totalPESOS.total > 0 && totalUSD.total === 0
+  const usesOnlyUSD = totalUSD.total > 0 && totalPESOS.total === 0
+
+  const total = totalPESOS.total + totalUSD.total
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -59,8 +64,8 @@ export function DocumentForm({ isOpen, onClose }) {
       client_email: clientEmail,
       description,
       total,
-      paid_ARS: Number(paidARS) || 0,
-      paid_USD: Number(paidUSD) || 0,
+      paid_pesos: Number(paidARS) || 0,
+      paid_usd: Number(paidUSD) || 0,
       payment_method: paymentMethod,
       company_name: companyName,
     }
@@ -81,13 +86,12 @@ export function DocumentForm({ isOpen, onClose }) {
           quantity: item.quantity,
           unit_price: item.unit_price,
           currency: item.currency,
-          bonificado: item.bonificado,
         }
       ])
       if (itemError) { setError(itemError.message); setSaving(false); return }
     }
     setSuccess("Documento guardado correctamente")
-    setTitle(""); setClientName(""); setClientEmail(""); setDescription(""); setItems([{ description: "", quantity: 1, unit_price: 0, currency: "ARS", bonificado: false }]); setPaymentMethod(""); setPaidARS(0); setPaidUSD(0); setType("factura"); setCompanyName("")
+    setTitle(""); setClientName(""); setClientEmail(""); setDescription(""); setItems([{ description: "", quantity: 1, unit_price: 0, currency: "PESOS" }]); setPaymentMethod(""); setPaidARS(0); setPaidUSD(0); setType("factura"); setCompanyName("")
     setSaving(false)
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
   }
@@ -95,49 +99,85 @@ export function DocumentForm({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-2xl p-3 sm:p-6 animate-in fade-in zoom-in duration-200 max-h-[98vh] overflow-y-auto">
-        <h3 className="text-xl font-bold mb-3 sm:mb-4 text-white">Nueva Factura / Recibo / Orden</h3>
-        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-4">{error}</div>}
-        {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-4">{success}</div>}
+    <div className="fixed inset-0 bg-black/70 z-50 flex justify-center items-center">
+      <div className="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-2xl mx-auto animate-in fade-in zoom-in duration-200 max-h-[98vh] overflow-y-auto p-2 sm:p-4">
+        <h3 className="text-base sm:text-lg font-bold mb-2 sm:mb-3 text-white text-center leading-tight">Nueva Factura / Recibo / Orden</h3>
+        {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-2 rounded mb-2 text-xs sm:text-sm">{error}</div>}
+        {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-2 rounded mb-2 text-xs sm:text-sm">{success}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Empresa emisora *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="companyName">Empresa emisora *</label>
+              <input
+                id="companyName"
+                aria-required="true"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={companyName}
+                onChange={e => setCompanyName(e.target.value)}
+                required
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Tipo</label>
-              <select className="w-full p-2 rounded bg-neutral-700 text-white" value={type} onChange={e => setType(e.target.value)}>
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="type">Tipo</label>
+              <select
+                id="type"
+                aria-required="true"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={type}
+                onChange={e => setType(e.target.value)}
+              >
                 <option value="factura">Factura</option>
                 <option value="recibo">Recibo</option>
                 <option value="orden">Orden de Servicio</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Título *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={title} onChange={e => setTitle(e.target.value)} required />
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="title">Título *</label>
+              <input
+                id="title"
+                aria-required="true"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                required
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Cliente *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={clientName} onChange={e => setClientName(e.target.value)} required />
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="clientName">Cliente *</label>
+              <input
+                id="clientName"
+                aria-required="true"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={clientName}
+                onChange={e => setClientName(e.target.value)}
+                required
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Email Cliente</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={clientEmail} onChange={e => setClientEmail(e.target.value)} />
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="clientEmail">Email Cliente</label>
+              <input
+                id="clientEmail"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={clientEmail}
+                onChange={e => setClientEmail(e.target.value)}
+              />
             </div>
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 text-white">Descripción General</label>
-            <textarea className="w-full p-2 rounded bg-neutral-700 text-white" value={description} onChange={e => setDescription(e.target.value)} />
+            <textarea
+              className="w-full p-2 rounded bg-neutral-700 text-white"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+            />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 text-white">Items *</label>
             <div className="space-y-2">
               {items.map((item, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
+                <div key={idx} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                   <input
-                    className="p-2 rounded bg-neutral-700 text-white flex-1"
+                    className="p-2 rounded bg-neutral-700 text-white flex-1 min-w-0"
                     placeholder="Descripción"
                     value={item.description}
                     onChange={e => handleItemChange(idx, "description", e.target.value)}
@@ -145,7 +185,7 @@ export function DocumentForm({ isOpen, onClose }) {
                   />
                   <input
                     type="number"
-                    className="p-2 rounded bg-neutral-700 text-white w-16"
+                    className="p-2 rounded bg-neutral-700 text-white w-full sm:w-16"
                     placeholder="Cant."
                     value={item.quantity}
                     min={1}
@@ -154,7 +194,7 @@ export function DocumentForm({ isOpen, onClose }) {
                   />
                   <input
                     type="number"
-                    className="p-2 rounded bg-neutral-700 text-white w-24"
+                    className="p-2 rounded bg-neutral-700 text-white w-full sm:w-24"
                     placeholder="Precio"
                     value={item.unit_price}
                     min={0}
@@ -162,49 +202,83 @@ export function DocumentForm({ isOpen, onClose }) {
                     required
                   />
                   <select
-                    className="p-2 rounded bg-neutral-700 text-white"
+                    className="p-2 rounded bg-neutral-700 text-white w-full sm:w-auto"
                     value={item.currency}
                     onChange={e => handleItemChange(idx, "currency", e.target.value)}
                   >
-                    <option value="ARS">$</option>
-                    <option value="USD">U$</option>
+                    <option value="PESOS">Pesos</option>
+                    <option value="USD">Dólares</option>
                   </select>
-                  <label className="flex items-center gap-1 text-xs text-white">
-                    <input
-                      type="checkbox"
-                      checked={item.bonificado}
-                      onChange={e => handleItemChange(idx, "bonificado", e.target.checked)}
-                    /> Bonificado
-                  </label>
-                  <button type="button" className="text-red-400 hover:text-red-600" onClick={() => handleRemoveItem(idx)} aria-label="Eliminar item">✕</button>
+                  <button type="button" className="text-red-400 hover:text-red-600 ml-0 sm:ml-2" onClick={() => handleRemoveItem(idx)} aria-label="Eliminar item">✕</button>
                 </div>
               ))}
               <button type="button" className="text-green-400 hover:text-green-600 mt-2" onClick={handleAddItem} aria-label="Agregar item">+ Agregar Item</button>
             </div>
           </div>
-          {/* Visualización de totales y pagos por moneda */}
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-neutral-900 rounded-lg p-3 flex flex-col gap-1">
-              <span className="font-bold text-white">Total ARS: ${totalARS.total.toFixed(2)}</span>
-              <span className="text-green-400">Pagado ARS: ${totalARS.paid.toFixed(2)}</span>
-              <span className="text-red-400">Saldo ARS: ${totalARS.due.toFixed(2)}</span>
-              <input type="number" className="w-full mt-1 p-2 rounded bg-neutral-700 text-white" min={0} value={paidARS} onChange={e => setPaidARS(e.target.value)} placeholder="Pagado en ARS" />
-            </div>
-            <div className="bg-neutral-900 rounded-lg p-3 flex flex-col gap-1">
-              <span className="font-bold text-white">Total USD: U$ {totalUSD.total.toFixed(2)}</span>
-              <span className="text-green-400">Pagado USD: U$ {totalUSD.paid.toFixed(2)}</span>
-              <span className="text-red-400">Saldo USD: U$ {totalUSD.due.toFixed(2)}</span>
-              <input type="number" className="w-full mt-1 p-2 rounded bg-neutral-700 text-white" min={0} value={paidUSD} onChange={e => setPaidUSD(e.target.value)} placeholder="Pagado en USD" />
+          {/* Total centralizado y detalle por moneda */}
+          <div className="mb-4">
+            <div className="bg-neutral-900 rounded-lg p-4 flex flex-col gap-2 items-center">
+              {usesBoth && (
+                <span className="font-bold text-white text-lg">
+                  Total en pesos: ${totalPESOS.total.toFixed(2)} &nbsp;|&nbsp; Total en dólares: U${totalUSD.total.toFixed(2)}
+                </span>
+              )}
+              {usesOnlyPESOS && (
+                <span className="font-bold text-white text-lg">
+                  Total en pesos: ${totalPESOS.total.toFixed(2)}
+                </span>
+              )}
+              {usesOnlyUSD && (
+                <span className="font-bold text-white text-lg">
+                  Total en dólares: U${totalUSD.total.toFixed(2)}
+                </span>
+              )}
+              <div className="flex flex-col sm:flex-row gap-2 w-full justify-center mt-2">
+                {totalPESOS.total > 0 && (
+                  <div className="flex-1 bg-neutral-800 rounded p-2 text-center">
+                    <span className="block text-white font-semibold">PESOS</span>
+                    <span className="text-white">Total: ${totalPESOS.total.toFixed(2)}</span>
+                    <span className="block text-green-400">Pagado: ${totalPESOS.paid.toFixed(2)}</span>
+                    <span className="block text-red-400">Saldo: ${totalPESOS.due.toFixed(2)}</span>
+                    <input
+                      type="number"
+                      className="w-full mt-1 p-2 rounded bg-neutral-700 text-white"
+                      min={0}
+                      value={paidARS}
+                      onChange={e => setPaidARS(e.target.value)}
+                      placeholder="Pagado en PESOS"
+                    />
+                  </div>
+                )}
+                {totalUSD.total > 0 && (
+                  <div className="flex-1 bg-neutral-800 rounded p-2 text-center">
+                    <span className="block text-white font-semibold">USD</span>
+                    <span className="text-white">Total: U${totalUSD.total.toFixed(2)}</span>
+                    <span className="block text-green-400">Pagado: U${totalUSD.paid.toFixed(2)}</span>
+                    <span className="block text-red-400">Saldo: U${totalUSD.due.toFixed(2)}</span>
+                    <input
+                      type="number"
+                      className="w-full mt-1 p-2 rounded bg-neutral-700 text-white"
+                      min={0}
+                      value={paidUSD}
+                      onChange={e => setPaidUSD(e.target.value)}
+                      placeholder="Pagado en USD"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-sm font-medium mb-1 text-white">Método de Pago</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} />
+              <label className="block text-sm font-medium mb-1 text-white" htmlFor="paymentMethod">Método de Pago</label>
+              <input
+                id="paymentMethod"
+                className="w-full p-2 rounded bg-neutral-700 text-white"
+                value={paymentMethod}
+                onChange={e => setPaymentMethod(e.target.value)}
+              />
             </div>
-          </div>
-          <div className="mb-4 flex justify-between items-center">
-            <span className="font-bold text-white">Total: ${total.toFixed(2)}</span>
           </div>
           <div className="flex justify-end gap-3 mt-6">
             <button

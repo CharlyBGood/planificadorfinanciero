@@ -4,13 +4,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { AuthProvider } from "./contexts/AuthContext"
 import { GlobalProvider } from "./contexts/GlobalState"
 import { useAuth } from "./contexts/AuthContext"
-import { AuthScreen } from "./components/auth/AuthScreen"
-import { Dashboard } from "./components/dashboard/Dashboard"
 import { CategoryView } from "./components/dashboard/CategoryView"
 import { DocumentView } from "./components/documents/DocumentView"
 import { useState, useEffect } from "react"
 import Navbar from "./components/ui/Navbar"
-import Home from "./components/Home"
+import Home from "./pages/Home"
+import Auth from "./pages/Auth"
+import Dashboard from "./pages/Dashboard"
 import "./App.css"
 
 function PrivateRoute({ children }) {
@@ -19,7 +19,6 @@ function PrivateRoute({ children }) {
 }
 
 function AppContent() {
-  const { currentUser } = useAuth()
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark")
 
   useEffect(() => {
@@ -29,37 +28,29 @@ function AppContent() {
 
   return (
     <GlobalProvider>
-      <div className="h-screen flex flex-col bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-white transition-colors duration-300">
-        <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col">
-          <Navbar theme={theme} setTheme={setTheme} />
-          <div className="h-screen flex flex-col bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-white transition-colors duration-300 overflow-hidden">
-            <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col pt-20">
-              <div className="flex-1 bg-white dark:bg-neutral-800 rounded-b-lg shadow-xl overflow-auto flex flex-col">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/auth" element={<AuthScreen />} />
-                  <Route path="/dashboard" element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/category/:id" element={
-                    <PrivateRoute>
-                      <CategoryView />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/document/:id" element={
-                    <PrivateRoute>
-                      <DocumentView />
-                    </PrivateRoute>
-                  } />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Navbar theme={theme} setTheme={setTheme} />
+      <main className="flex flex-col items-center justify-center min-h-[calc(100dvh-80px)] pt-20 bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-white transition-colors duration-300">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/category/:id" element={
+            <PrivateRoute>
+              <CategoryView />
+            </PrivateRoute>
+          } />
+          <Route path="/document/:id" element={
+            <PrivateRoute>
+              <DocumentView />
+            </PrivateRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
     </GlobalProvider>
   )
 }
