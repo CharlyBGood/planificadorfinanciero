@@ -3,13 +3,21 @@ import { useNavigate } from "react-router-dom"
 import ThemeToggle from "./ThemeToggle"
 import LoginIcon from "../utilities/LoginIcon"
 import LogoutIcon from "../utilities/LogoutIcon"
+import { DeleteConfirmationModal } from "./DeleteConfirmationModal"
+import { useState } from "react"
 
 export default function Navbar({ theme, setTheme }) {
   const { currentUser, logout } = useAuth()
   const navigate = useNavigate()
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   const handleLogout = async () => {
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = async () => {
     await logout()
+    setShowLogoutModal(false)
     navigate("/", { replace: true })
   }
 
@@ -38,6 +46,14 @@ export default function Navbar({ theme, setTheme }) {
           </button>
         )}
       </div>
+      <DeleteConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={confirmLogout}
+        title="Cerrar sesión"
+        message="¿Estás seguro que deseas cerrar tu sesión?"
+        confirmLabel="Cerrar sesión"
+      />
     </nav>
   )
 }

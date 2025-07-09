@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 
-export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, transactionDescription }) {
+export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, transactionDescription, title = "Confirmar eliminación", message, confirmLabel = "Eliminar" }) {
   const modalRef = useRef(null)
 
   // Close modal when clicking outside
@@ -47,10 +47,11 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, transactio
         ref={modalRef}
         className="bg-neutral-800 rounded-lg shadow-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-200"
       >
-        <h3 className="text-xl font-bold mb-4">Confirmar eliminación</h3>
+        <h3 className="text-xl font-bold mb-4">{title}</h3>
         <p className="mb-6">
-          ¿Estás seguro que deseas eliminar la transacción{" "}
-          <span className="font-semibold">"{transactionDescription}"</span>?
+          {message ? message : (
+            <>¿Estás seguro que deseas eliminar la transacción <span className="font-semibold">"{transactionDescription}"</span>?</>
+          )}
         </p>
         <div className="flex justify-end gap-3">
           <button
@@ -60,7 +61,7 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, transactio
             Cancelar
           </button>
           <button onClick={onConfirm} className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md transition-colors">
-            Eliminar
+            {confirmLabel}
           </button>
         </div>
       </div>
