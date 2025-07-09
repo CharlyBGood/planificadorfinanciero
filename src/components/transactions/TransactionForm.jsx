@@ -116,7 +116,7 @@ export function TransactionForm({ categoryId }) {
           />
         </div>
         <button
-          className="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          className="btn-app bg-indigo-700 hover:bg-indigo-600 text-app px-4 py-3 rounded-lg block w-full text-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-400"
           disabled={!description || !amount || (!isIncome && !isExpense) || submitting}
           type="submit"
           aria-disabled={!description || !amount || (!isIncome && !isExpense) || submitting}

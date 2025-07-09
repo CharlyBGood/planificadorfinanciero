@@ -91,7 +91,7 @@ export function CategoryView() {
       >
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-indigo-100 dark:hover:bg-indigo-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
+          className="btn-app"
           aria-label="Volver al Dashboard"
         >
           <ArrowLeft size={18} />
@@ -101,7 +101,7 @@ export function CategoryView() {
         <div className="flex gap-2">
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-indigo-100 dark:hover:bg-indigo-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm sm:text-base"
+            className="btn-app"
             aria-label="Editar objetivo"
             title="Editar objetivo"
           >
@@ -110,7 +110,7 @@ export function CategoryView() {
           </button>
           <button
             onClick={handleDeleteCategory}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-[var(--color-bg-secondary)] hover:bg-red-200 dark:hover:bg-red-600 text-[var(--color-text)] font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all text-sm sm:text-base"
+            className="btn-app hover:text-red-600 dark:hover:text-red-400 focus:ring-red-400"
             aria-label="Eliminar objetivo"
             title="Eliminar objetivo"
           >

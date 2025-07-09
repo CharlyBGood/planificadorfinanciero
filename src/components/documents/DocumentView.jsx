@@ -61,7 +61,7 @@ export function DocumentView() {
         <div className="flex justify-end mb-2">
           <button
             onClick={() => setIsEditOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-md transition-all"
+            className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app"
             aria-label="Editar documento"
           >
             Editar
@@ -78,12 +78,12 @@ export function DocumentView() {
         <div className="overflow-x-auto mt-2">
           <table className="min-w-full text-xs sm:text-sm text-left">
             <thead>
-              <tr className="bg-neutral-700">
-                <th className="px-2 sm:px-3 py-2">#</th>
-                <th className="px-2 sm:px-3 py-2">Descripción</th>
-                <th className="px-2 sm:px-3 py-2">Cantidad</th>
-                <th className="px-2 sm:px-3 py-2">Precio</th>
-                <th className="px-2 sm:px-3 py-2">Total</th>
+              <tr className="bg-app-secondary">
+                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">#</th>
+                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Descripción</th>
+                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Cantidad</th>
+                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Precio</th>
+                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Total</th>
               </tr>
             </thead>
             <tbody>

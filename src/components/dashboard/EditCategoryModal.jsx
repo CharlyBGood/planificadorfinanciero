@@ -139,7 +139,7 @@ export function EditCategoryModal({ category, isOpen, onClose, onUpdate }) {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-70"
+              className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app"
               disabled={!name.trim()}
             >
               Guardar Cambios

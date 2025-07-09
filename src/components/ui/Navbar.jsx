@@ -31,7 +31,7 @@ export default function Navbar({ theme, setTheme }) {
         ) : (
           <button
             onClick={() => navigate("/auth")}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full flex items-center justify-center transition-colors"
+            className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app p-2 rounded-full flex items-center justify-center transition-colors"
             aria-label="Iniciar Sesión"
           >
             <LoginIcon />

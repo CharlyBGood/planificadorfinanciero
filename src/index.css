@@ -136,6 +136,11 @@ input[type="number"] {
   border-color: var(--color-border) !important;
 }
 
+/* Botón centralizado para toda la app */
+.btn-app {
+  @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-app-secondary hover:text-indigo-600 dark:hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm sm:text-base font-semibold shadow-none bg-transparent border-none;
+}
+
 /*
   PATRÓN CENTRALIZADO MODO CLARO/OSCURO:
   - Solo usar clases Tailwind y variantes dark: en componentes.

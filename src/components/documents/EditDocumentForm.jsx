@@ -28,13 +28,13 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         client_email: doc.client_email || "",
         description: doc.description || "",
         total: doc.total ?? 0,
-        paid: doc.paid ?? 0,
-        paid_ARS: doc.paid_ARS ?? 0,
-        paid_USD: doc.paid_USD ?? 0,
+        paid_pesos: doc.paid_pesos ?? 0,
+        paid_usd: doc.paid_usd ?? 0,
         payment_method: doc.payment_method || "",
         type: doc.type || "factura",
         company_name: doc.company_name || "",
         id: doc.id,
+        user_id: doc.user_id,
       })
       const { data: itemsData } = await supabase
         .from("document_items")
@@ -46,7 +46,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         quantity: item.quantity ?? 1,
         unit_price: item.unit_price ?? 0,
         currency: item.currency || "ARS",
-        bonificado: item.bonificado ?? false,
+        // bonificado eliminado
       })))
       setLoading(false)
     }
@@ -55,7 +55,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
 
   const handleChange = (field, value) => setForm(f => ({ ...f, [field]: value }))
   const handleItemChange = (idx, field, value) => setItems(items => items.map((item, i) => i === idx ? { ...item, [field]: value } : item))
-  const handleAddItem = () => setItems(items => [...items, { description: "", quantity: 1, unit_price: 0, currency: "ARS", bonificado: false }])
+  const handleAddItem = () => setItems(items => [...items, { description: "", quantity: 1, unit_price: 0, currency: "ARS" }])
   const handleRemoveItem = idx => setItems(items => items.filter((_, i) => i !== idx))
 
   // Calcular totales y pagos por moneda
@@ -77,25 +77,26 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     setError(""); setSuccess("")
     if (!form.title || !form.client_name || !form.company_name || !items.length) return setError("Completa todos los campos obligatorios")
     setLoading(true)
-    // Actualizar documento
     // Validar y limpiar payload antes de enviar
-    // Guardar pagos por moneda en el documento
     const payload = {
-      title: form.title,
-      client_name: form.client_name,
-      client_email: form.client_email,
-      description: form.description,
-      total: isNaN(total) ? 0 : total,
-      paid_ARS: Number(form.paid_ARS) || 0,
-      paid_USD: Number(form.paid_USD) || 0,
-      payment_method: form.payment_method || null,
-      type: form.type,
-      company_name: form.company_name,
+      user_id: currentUser.id,
+      type: String(form.type || "factura"),
+      title: String(form.title || ""),
+      client_name: String(form.client_name || ""),
+      client_email: form.client_email ? String(form.client_email) : null,
+      description: form.description ? String(form.description) : null,
+      total: isNaN(total) ? 0 : Number(total),
+      paid_pesos: Number(form.paid_pesos) || 0,
+      paid_usd: Number(form.paid_usd) || 0,
+      payment_method: form.payment_method ? String(form.payment_method) : null,
+      company_name: String(form.company_name || ""),
     }
-    // Eliminar campos undefined/null
+    // Eliminar campos undefined/null y vacíos
     Object.keys(payload).forEach(key => {
-      if (payload[key] === undefined) delete payload[key]
+      if (payload[key] === undefined || (payload[key] === null && key !== 'client_email' && key !== 'description' && key !== 'payment_method')) delete payload[key]
     })
+    // Debug: log payload antes de enviar
+    console.log('Payload enviado a Supabase:', payload)
     const { error: docError } = await supabase.from("documents").update(payload)
       .eq("id", documentId).eq("user_id", currentUser.id)
     if (docError) { setError(docError.message); setLoading(false); return }
@@ -103,7 +104,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     await supabase.from("document_items").delete().eq("document_id", documentId)
     for (const item of items) {
       const { error: itemError } = await supabase.from("document_items").insert([
-        { document_id: documentId, description: item.description, quantity: item.quantity, unit_price: item.unit_price, currency: item.currency, bonificado: item.bonificado }
+        { document_id: documentId, description: item.description, quantity: item.quantity, unit_price: item.unit_price, currency: item.currency }
       ])
       if (itemError) { setError(itemError.message); setLoading(false); return }
     }
@@ -113,52 +114,61 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
   }
 
-  if (!documentId || !form) return null
+  if (!form) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950 p-2 sm:p-4">
-      <div className="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md sm:max-w-2xl p-3 sm:p-6 animate-in fade-in zoom-in duration-200 max-h-[98vh] overflow-y-auto flex flex-col justify-center">
-        <h3 className="text-lg xs:text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white text-center leading-tight">Editar Documento</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-200 p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-app-secondary rounded-lg shadow-lg w-full max-w-md sm:max-w-2xl p-2 sm:p-6 flex flex-col justify-center max-h-[98vh] overflow-y-auto relative mx-auto min-h-[90vh] sm:min-h-0">
+        <button
+          onClick={onClose}
+          className="btn-app absolute top-3 right-3 z-10"
+          aria-label="Cerrar edición"
+        >
+          ✕
+        </button>
+        <h3 className="text-lg xs:text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-app text-center leading-tight break-words">Editar Documento</h3>
         {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-4 text-xs sm:text-sm">{error}</div>}
         {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-4 text-xs sm:text-sm">{success}</div>}
-        <form onSubmit={handleSubmit} className="flex flex-col justify-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Empresa emisora *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={form.company_name} onChange={e => handleChange("company_name", e.target.value)} required />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-2 w-full">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Empresa emisora *</label>
+              <input className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.company_name} onChange={e => handleChange("company_name", e.target.value)} required />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Tipo</label>
-              <select className="w-full p-2 rounded bg-neutral-700 text-white" value={form.type} onChange={e => handleChange("type", e.target.value)}>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Tipo</label>
+              <select className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.type} onChange={e => handleChange("type", e.target.value)}>
                 <option value="factura">Factura</option>
                 <option value="recibo">Recibo</option>
-                <option value="orden">Orden de Servicio</option>
+                <option value="presupuesto">Presupuesto</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Título *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={form.title} onChange={e => handleChange("title", e.target.value)} required />
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-2 w-full">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Título *</label>
+              <input className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.title} onChange={e => handleChange("title", e.target.value)} required />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Cliente *</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={form.client_name} onChange={e => handleChange("client_name", e.target.value)} required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Email Cliente</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={form.client_email} onChange={e => handleChange("client_email", e.target.value)} />
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Cliente *</label>
+              <input className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.client_name} onChange={e => handleChange("client_name", e.target.value)} required />
             </div>
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1 text-white">Descripción General</label>
-            <textarea className="w-full p-2 rounded bg-neutral-700 text-white" value={form.description} onChange={e => handleChange("description", e.target.value)} />
+          <div className="mb-2 w-full">
+            <label className="block text-sm font-medium mb-1 text-app">Email Cliente</label>
+            <input className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.client_email} onChange={e => handleChange("client_email", e.target.value)} />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1 text-white">Items *</label>
+          <div className="mb-2 w-full">
+            <label className="block text-sm font-medium mb-1 text-app">Descripción General</label>
+            <textarea className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.description} onChange={e => handleChange("description", e.target.value)} />
+          </div>
+          <div className="mb-2 w-full">
+            <label className="block text-sm font-medium mb-1 text-app">Items *</label>
             <div className="space-y-2">
               {items.map((item, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row gap-2 items-center w-full">
+                <div key={idx} className="flex flex-col gap-2 sm:flex-row sm:gap-2 items-stretch w-full">
                   <input
-                    className="p-2 rounded bg-neutral-700 text-white flex-1 min-w-0"
+                    className="p-2 rounded bg-app-secondary text-app border border-app flex-1 min-w-0"
                     placeholder="Descripción"
                     value={item.description}
                     onChange={e => handleItemChange(idx, "description", e.target.value)}
@@ -166,7 +176,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
                   />
                   <input
                     type="number"
-                    className="p-2 rounded bg-neutral-700 text-white w-16"
+                    className="p-2 rounded bg-app-secondary text-app border border-app w-full sm:w-16"
                     placeholder="Cant."
                     value={item.quantity}
                     min={1}
@@ -175,7 +185,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
                   />
                   <input
                     type="number"
-                    className="p-2 rounded bg-neutral-700 text-white w-24"
+                    className="p-2 rounded bg-app-secondary text-app border border-app w-full sm:w-24"
                     placeholder="Precio"
                     value={item.unit_price}
                     min={0}
@@ -184,62 +194,55 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
                     required
                   />
                   <select
-                    className="p-2 rounded bg-neutral-700 text-white"
+                    className="p-2 rounded bg-app-secondary text-app border border-app w-full sm:w-auto"
                     value={item.currency}
                     onChange={e => handleItemChange(idx, "currency", e.target.value)}
                   >
                     <option value="ARS">$</option>
                     <option value="USD">U$</option>
                   </select>
-                  <label className="flex items-center gap-1 text-xs text-white">
-                    <input
-                      type="checkbox"
-                      checked={item.bonificado}
-                      onChange={e => handleItemChange(idx, "bonificado", e.target.checked)}
-                    /> Bonificado
-                  </label>
-                  <button type="button" className="text-red-400 hover:text-red-600" onClick={() => handleRemoveItem(idx)} aria-label="Eliminar item">✕</button>
+                  <button type="button" className="text-red-400 hover:text-red-600 self-center sm:self-auto" onClick={() => handleRemoveItem(idx)} aria-label="Eliminar item">✕</button>
                 </div>
               ))}
               <button type="button" className="text-green-400 hover:text-green-600 mt-2" onClick={handleAddItem} aria-label="Agregar item">+ Agregar Item</button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Método de Pago</label>
-              <input className="w-full p-2 rounded bg-neutral-700 text-white" value={form.payment_method} onChange={e => handleChange("payment_method", e.target.value)} />
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-2 w-full">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Método de Pago</label>
+              <input className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.payment_method} onChange={e => handleChange("payment_method", e.target.value)} />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Saldo Abonado</label>
-              <input type="number" className="w-full p-2 rounded bg-neutral-700 text-white" value={form.paid} min={0} onChange={e => handleChange("paid", Number(e.target.value))} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Pagado en Pesos ($)</label>
-              <input type="number" className="w-full p-2 rounded bg-neutral-700 text-white" value={form.paid_ARS ?? ""} min={0} onChange={e => handleChange("paid_ARS", e.target.value)} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-white">Pagado en Dólares (U$)</label>
-              <input type="number" className="w-full p-2 rounded bg-neutral-700 text-white" value={form.paid_USD ?? ""} min={0} onChange={e => handleChange("paid_USD", e.target.value)} />
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Saldo Abonado</label>
+              <input type="number" className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.paid} min={0} onChange={e => handleChange("paid", Number(e.target.value))} />
             </div>
           </div>
-          <div className="mb-4 flex justify-between items-center">
-            <span className="font-bold text-white">Total: ${total.toFixed(2)}</span>
-            <span className="font-bold text-white">Saldo a abonar: ${due.toFixed(2)}</span>
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 mb-2 w-full">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Pagado en Pesos ($)</label>
+              <input type="number" className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.paid_ARS ?? ""} min={0} onChange={e => handleChange("paid_ARS", e.target.value)} />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-1 text-app">Pagado en Dólares (U$)</label>
+              <input type="number" className="w-full p-2 rounded bg-app-secondary text-app border border-app" value={form.paid_USD ?? ""} min={0} onChange={e => handleChange("paid_USD", e.target.value)} />
+            </div>
           </div>
-          <div className="flex justify-end gap-3 mt-6">
+          <div className="mb-2 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span className="font-bold text-app">Total: ${total.toFixed(2)}</span>
+            <span className="font-bold text-app">Saldo a abonar: ${due.toFixed(2)}</span>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4 w-full">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-md transition-colors text-white"
+              className="btn-app bg-app-secondary border border-app"
               disabled={loading}
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-70 text-white"
+              className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app"
               disabled={loading}
             >
               {loading ? "Guardando..." : "Guardar Cambios"}
