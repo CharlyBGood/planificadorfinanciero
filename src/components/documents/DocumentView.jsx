@@ -4,6 +4,8 @@ import { useAuth } from "../../contexts/AuthContext"
 import { ArrowLeft } from "lucide-react"
 import { EditDocumentForm } from "./EditDocumentForm"
 import { useParams, useNavigate } from "react-router-dom"
+import { Trash2 } from "lucide-react"
+import { DeleteConfirmationModal } from "../ui/DeleteConfirmationModal"
 
 export function DocumentView() {
   const { id } = useParams()
@@ -14,6 +16,7 @@ export function DocumentView() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
     if (!id || !currentUser) return
@@ -42,31 +45,54 @@ export function DocumentView() {
     fetchDocument()
   }, [id, currentUser])
 
+  const handleDeleteDocument = () => {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteDocument = async () => {
+    await supabase.from("document_items").delete().eq("document_id", id)
+    await supabase.from("documents").delete().eq("id", id).eq("user_id", currentUser.id)
+    setShowDeleteModal(false)
+    navigate(-1)
+  }
+
   if (loading) return <div className="p-8 text-center text-neutral-400">Cargando documento...</div>
   if (error) return <div className="p-8 text-center text-red-400">{error}</div>
   if (!document) return null
 
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto w-full bg-[var(--color-bg-secondary)] text-[var(--color-text)] rounded-lg shadow-lg transition-colors duration-300">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-3 sm:mb-4 flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-indigo-600 dark:hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded text-sm sm:text-base"
-        aria-label="Volver a documentos"
-      >
-        <ArrowLeft size={20} />
-        <span className="sr-only">Volver a documentos</span>
-        <span>Volver</span>
-      </button>
-      <div className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
-        <div className="flex justify-end mb-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 border-b border-app pb-2 mb-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="btn-app"
+          aria-label="Volver a documentos"
+        >
+          <ArrowLeft size={18} />
+          <span className="sr-only">Volver a documentos</span>
+          <span className="hidden sm:inline">Volver</span>
+        </button>
+        <div className="flex gap-2">
           <button
             onClick={() => setIsEditOpen(true)}
-            className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app"
+            className="btn-app"
             aria-label="Editar documento"
+            title="Editar documento"
           >
             Editar
           </button>
+          <button
+            onClick={handleDeleteDocument}
+            className="btn-app hover:text-red-600 dark:hover:text-red-400 focus:ring-red-400"
+            aria-label="Eliminar documento"
+            title="Eliminar documento"
+          >
+            <Trash2 size={18} />
+            <span className="hidden sm:inline">Eliminar</span>
+          </button>
         </div>
+      </div>
+      <div className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-2">
           <div className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</div>
           <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
@@ -138,6 +164,12 @@ export function DocumentView() {
           <EditDocumentForm documentId={id} onClose={() => setIsEditOpen(false)} onSaved={() => { setIsEditOpen(false); window.location.reload(); }} />
         )}
       </div>
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteDocument}
+        transactionDescription={document?.title || document?.type || ""}
+      />
     </div>
   )
 }

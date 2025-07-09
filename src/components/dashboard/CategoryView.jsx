@@ -8,6 +8,7 @@ import { TransactionList } from "../transactions/TransactionList"
 import { IncomeExpenses } from "../IncomeExpenses"
 import { ExpenseChart } from "../ExpenseChart"
 import { EditCategoryModal } from "./EditCategoryModal"
+import { DeleteConfirmationModal } from "../ui/DeleteConfirmationModal"
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 import { useParams, useNavigate } from "react-router-dom"
@@ -18,6 +19,7 @@ export function CategoryView() {
   const { currentUser } = useAuth()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
     if (!id || !currentUser) return
@@ -77,9 +79,13 @@ export function CategoryView() {
     }
   }
 
-  const handleDeleteCategory = async () => {
-    if (!window.confirm(`¿Seguro que deseas eliminar el objetivo "${currentCategory.name}"? Esta acción no se puede deshacer.`)) return
+  const handleDeleteCategory = () => {
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeleteCategory = async () => {
     await supabase.from("categories").delete().eq("id", currentCategory.id).eq("user_id", currentUser.id)
+    setShowDeleteModal(false)
     navigate(-1)
   }
 
@@ -177,6 +183,13 @@ export function CategoryView() {
           onUpdate={handleUpdateCategory}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteCategory}
+        transactionDescription={currentCategory?.name || ""}
+      />
     </div>
   )
 }

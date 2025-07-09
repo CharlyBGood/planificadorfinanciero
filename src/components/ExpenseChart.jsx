@@ -42,7 +42,7 @@ export function ExpenseChart({ categoryId }) {
         labelComponent={
           <VictoryLabel
             style={{
-              fill: "white",
+              fill: "var(--color-text)",
               fontSize: 14,
               fontWeight: "bold",
             }}
