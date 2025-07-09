@@ -62,17 +62,19 @@ export function DocumentView() {
 
   return (
     <div className="p-2 sm:p-4 md:p-6 max-w-2xl mx-auto w-full bg-[var(--color-bg-secondary)] text-[var(--color-text)] rounded-lg shadow-lg transition-colors duration-300">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 border-b border-app pb-2 mb-2">
-        <button
-          onClick={() => navigate(-1)}
-          className="btn-app"
-          aria-label="Volver a documentos"
-        >
-          <ArrowLeft size={18} />
-          <span className="sr-only">Volver a documentos</span>
-          <span className="hidden sm:inline">Volver</span>
-        </button>
-        <div className="flex gap-2">
+      <div className="flex flex-row sm:justify-between sm:items-center gap-2 border-b border-app pb-2 mb-2">
+        <div className="flex-shrink-0">
+          <button
+            onClick={() => navigate(-1)}
+            className="btn-app"
+            aria-label="Volver a documentos"
+          >
+            <ArrowLeft size={18} />
+            <span className="sr-only">Volver a documentos</span>
+            <span className="hidden sm:inline">Volver</span>
+          </button>
+        </div>
+        <div className="flex gap-2 ml-auto">
           <button
             onClick={() => setIsEditOpen(true)}
             className="btn-app"
