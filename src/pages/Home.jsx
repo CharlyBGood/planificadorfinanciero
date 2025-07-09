@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
 import { useEffect } from "react"
+import CandlestickIcon from "../components/utilities/CandlestickIcon"
 
 export default function Home() {
   const { currentUser } = useAuth()
@@ -19,12 +20,12 @@ export default function Home() {
           ¡Te damos la bienvenida!
         </h1>
         <p className="text-lg text-center text-neutral-600 dark:text-neutral-300 mb-4">
-          Gestiona tus objetivos, facturas y finanzas personales de forma simple, visual y segura.
+          Con Planificador Financiero (Pfff!) podrás gestionar tus objetivos, facturas y finanzas personales de forma simple, visual y sencilla..
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Link to="/auth" className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-lg font-semibold text-center transition-colors">
-            Iniciar Sesión
-          </Link>
+        <CandlestickIcon size={72} className="mb-2" />
+        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs mx-auto justify-center mt-2">
+          <Link to="/auth" className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app flex-1 text-base font-semibold text-center transition-colors min-w-[120px]">Iniciar Sesión</Link>
+          <Link to="/auth?register=1" className="btn-app bg-app-secondary border border-app flex-1 text-base font-semibold text-center transition-colors min-w-[120px]">Crear Cuenta</Link>
         </div>
       </div>
     </main>
