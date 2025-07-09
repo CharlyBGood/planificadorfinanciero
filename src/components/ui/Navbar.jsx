@@ -1,7 +1,8 @@
 import { useAuth } from "../../contexts/AuthContext"
 import { useNavigate } from "react-router-dom"
 import ThemeToggle from "./ThemeToggle"
-import UserIcon from "../utilities/UserIcon"
+import LoginIcon from "../utilities/LoginIcon"
+import LogoutIcon from "../utilities/LogoutIcon"
 
 export default function Navbar({ theme, setTheme }) {
   const { currentUser, logout } = useAuth()
@@ -24,8 +25,8 @@ export default function Navbar({ theme, setTheme }) {
       <div className="flex flex-row items-center gap-2 w-auto">
         <ThemeToggle theme={theme} setTheme={setTheme} />
         {currentUser ? (
-          <button onClick={handleLogout} className="bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 px-3 py-1 rounded text-xs sm:text-sm text-neutral-900 dark:text-white transition-colors">
-            Cerrar Sesión
+          <button onClick={handleLogout} className="bg-neutral-200 dark:bg-neutral-700 hover:bg-neutral-300 dark:hover:bg-neutral-600 p-2 rounded-full flex items-center justify-center transition-colors" aria-label="Cerrar Sesión">
+            <LogoutIcon />
           </button>
         ) : (
           <button
@@ -33,7 +34,7 @@ export default function Navbar({ theme, setTheme }) {
             className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full flex items-center justify-center transition-colors"
             aria-label="Iniciar Sesión"
           >
-            <UserIcon />
+            <LoginIcon />
           </button>
         )}
       </div>
