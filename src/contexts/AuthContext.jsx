@@ -36,7 +36,16 @@ export function AuthProvider({ children }) {
   }, [])
 
   const logout = async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {
+      // Si hay error 403, igual limpiamos el usuario local
+      if (e.status === 403) {
+        // Opcional: log o notificación
+      }
+    } finally {
+      setCurrentUser(null)
+    }
   }
 
   const value = {

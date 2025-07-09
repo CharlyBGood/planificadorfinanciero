@@ -23,7 +23,7 @@ export default function Home() {
           Con Planificador Financiero (Pfff!) podrás gestionar tus objetivos, facturas y finanzas personales de forma simple, visual y sencilla..
         </p>
         <CandlestickIcon size={72} className="mb-2" />
-        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs mx-auto justify-center mt-2">
+        <div className="flex flex-row sm:flex-row gap-2 w-full max-w-xs mx-auto justify-center mt-2">
           <Link to="/auth" className="btn-app bg-indigo-600 hover:bg-indigo-700 text-app flex-1 text-base font-semibold text-center transition-colors min-w-[120px]">Iniciar Sesión</Link>
           <Link to="/auth?register=1" className="btn-app bg-app-secondary border border-app flex-1 text-base font-semibold text-center transition-colors min-w-[120px]">Crear Cuenta</Link>
         </div>
