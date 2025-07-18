@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useRef, useEffect, useState } from "react"
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 import { ArrowLeft } from "lucide-react"
@@ -6,6 +6,8 @@ import { EditDocumentForm } from "./EditDocumentForm"
 import { useParams, useNavigate } from "react-router-dom"
 import { Trash2 } from "lucide-react"
 import { DeleteConfirmationModal } from "../ui/DeleteConfirmationModal"
+import html2canvas from "html2canvas"
+import jsPDF from "jspdf"
 
 export function DocumentView() {
   const { id } = useParams()
@@ -17,6 +19,7 @@ export function DocumentView() {
   const [error, setError] = useState(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const documentRef = useRef(null)
 
   useEffect(() => {
     if (!id || !currentUser) return
@@ -54,6 +57,32 @@ export function DocumentView() {
     await supabase.from("documents").delete().eq("id", id).eq("user_id", currentUser.id)
     setShowDeleteModal(false)
     navigate(-1)
+  }
+
+  const handleDownloadPDF = async () => {
+    const element = documentRef.current;
+    if (!element) return;
+    // Ocultar el botón de descarga temporalmente
+    const pdfButton = element.querySelector(".btn-download-pdf");
+    if (pdfButton) pdfButton.classList.add("hide-for-pdf");
+    // Forzar modo blanco y negro solo para exportar
+    element.classList.add("pdf-bw-mode");
+    // Esperar a que el DOM se actualice
+    await new Promise(res => setTimeout(res, 100));
+    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#fff" });
+    element.classList.remove("pdf-bw-mode");
+    if (pdfButton) pdfButton.classList.remove("hide-for-pdf");
+    const imgData = canvas.toDataURL("image/png");
+    // Ajustar tamaño a A4 si es posible
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    // Calcular tamaño de imagen para que se adapte a la hoja
+    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+    const imgWidth = canvas.width * ratio;
+    const imgHeight = canvas.height * ratio;
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save("documento.pdf");
   }
 
   if (loading) return <div className="p-8 text-center text-neutral-400">Cargando documento...</div>
@@ -94,7 +123,7 @@ export function DocumentView() {
           </button>
         </div>
       </div>
-      <div className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
+      <div ref={documentRef} id="document-content" className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-2">
           <div className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</div>
           <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
@@ -161,7 +190,12 @@ export function DocumentView() {
           })}
         </div>
         {/* Botón para descargar PDF (opcional, funcionalidad futura) */}
-        {/* <button className="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">Descargar PDF</button> */}
+        <button
+          onClick={handleDownloadPDF}
+          className="btn-app btn-download-pdf bg-indigo-600 hover:bg-indigo-700 text-app mt-4 w-full sm:w-auto px-4 py-2 rounded-lg font-semibold text-base transition-colors"
+        >
+          Descargar PDF
+        </button>
         {isEditOpen && (
           <EditDocumentForm documentId={id} onClose={() => setIsEditOpen(false)} onSaved={() => { setIsEditOpen(false); window.location.reload(); }} />
         )}

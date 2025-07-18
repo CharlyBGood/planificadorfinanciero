@@ -141,6 +141,38 @@ input[type="number"] {
   @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-app-secondary hover:text-indigo-600 dark:hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm sm:text-base font-semibold shadow-none bg-transparent border-none;
 }
 
+/* Forzar modo claro en la exportación PDF */
+.force-light-mode {
+  background: #fff !important;
+  color: #222 !important;
+}
+.hide-for-pdf {
+  display: none !important;
+}
+.pdf-bw-mode {
+  background: #fff !important;
+  color: #000 !important;
+}
+.pdf-bw-mode * {
+  background: #fff !important;
+  color: #000 !important;
+  border-color: #222 !important;
+  box-shadow: none !important;
+}
+.pdf-bw-mode th, .pdf-bw-mode td {
+  background: #fff !important;
+  color: #000 !important;
+  border-color: #222 !important;
+}
+.pdf-bw-mode .text-green-600,
+.pdf-bw-mode .text-red-600,
+.pdf-bw-mode .text-indigo-700,
+.pdf-bw-mode .text-indigo-400,
+.pdf-bw-mode .dark\:text-green-400,
+.pdf-bw-mode .dark\:text-red-400 {
+  color: #000 !important;
+}
+
 /*
   PATRÓN CENTRALIZADO MODO CLARO/OSCURO:
   - Solo usar clases Tailwind y variantes dark: en componentes.
