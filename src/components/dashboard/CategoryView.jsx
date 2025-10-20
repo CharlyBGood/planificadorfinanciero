@@ -66,6 +66,20 @@ export function CategoryView() {
   // Calcular progreso hacia la meta
   const progress = currentCategory.target_amount ? Math.min(100, Math.max(0, (balance / currentCategory.target_amount) * 100)) : 0
 
+  // Calcular ingresos y egresos para la barra de progreso
+  const totalIncomes = categoryTransactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0)
+  const totalExpenses = categoryTransactions.filter(t => t.amount < 0).reduce((acc, t) => acc + Math.abs(t.amount), 0)
+  const meta = currentCategory.target_amount || 0
+  // Proporciones respecto a la meta
+  let green = meta > 0 ? Math.max(0, Math.min(1, totalIncomes / meta)) : 0
+  let red = meta > 0 ? Math.max(0, Math.min(1, totalExpenses / meta)) : 0
+  if (red > green) {
+    red = Math.min(1, red)
+    green = 0
+  } else {
+    green = green - red
+  }
+
   const handleUpdateCategory = async (updatedData) => {
     try {
       const { error } = await supabase
@@ -147,18 +161,32 @@ export function CategoryView() {
                 <span className="text-sm sm:text-base">Progreso hacia la meta</span>
                 <span className="font-semibold text-indigo-600 dark:text-indigo-300">${currentCategory.target_amount.toFixed(2)}</span>
               </div>
-              <div className="w-full bg-neutral-300 dark:bg-neutral-700 rounded-full h-2.5 mb-1">
+              <div className="w-full bg-neutral-300 dark:bg-neutral-700 rounded-full h-2.5 mb-1 flex relative overflow-hidden">
+                {/* Barra verde (ingresos netos) */}
                 <div
-                  className="h-2.5 rounded-full"
+                  className="h-2.5 rounded-full absolute left-0 top-0"
                   style={{
-                    width: `${progress}%`,
-                    backgroundColor: currentCategory.color || "#6366F1",
+                    width: `${green * 100}%`,
+                    backgroundColor: '#51bd20',
+                    zIndex: 2,
+                    transition: 'width 0.3s',
+                  }}
+                ></div>
+                {/* Barra roja (egresos) */}
+                <div
+                  className="h-2.5 rounded-full absolute left-0 top-0"
+                  style={{
+                    left: `${green * 100}%`,
+                    width: `${red * 100}%`,
+                    backgroundColor: '#fd204d',
+                    zIndex: 3,
+                    transition: 'width 0.3s',
                   }}
                 ></div>
               </div>
               <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
-                <span>Balance: ${balance.toFixed(2)}</span>
-                <span>{progress.toFixed(0)}%</span>
+                <span>Ingresos: ${totalIncomes.toFixed(2)} | Gastos: ${totalExpenses.toFixed(2)}</span>
+                <span>{((green + red) * 100).toFixed(0)}%</span>
               </div>
             </div>
           )}
