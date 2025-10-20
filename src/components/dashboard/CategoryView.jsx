@@ -180,7 +180,7 @@ export function CategoryView() {
           <div className="w-full lg:w-1/2 space-y-4 lg:space-y-6">
             <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <h3 className="text-xl font-bold mb-2 text-center">Distribución</h3>
-              <ExpenseChart categoryId={currentCategory.id} />
+              <ExpenseChart categoryId={currentCategory.id} targetAmount={currentCategory.target_amount} />
             </div>
             <div className="bg-[var(--color-bg-secondary)] p-3 sm:p-4 rounded-xl shadow-sm">
               <TransactionList categoryId={currentCategory.id} />
