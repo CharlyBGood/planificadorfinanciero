@@ -125,7 +125,12 @@ export function DocumentView() {
       </div>
       <div ref={documentRef} id="document-content" className="bg-[var(--color-bg)] rounded-lg p-2 sm:p-4 shadow-lg w-full relative flex flex-col gap-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-2">
-          <div className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</div>
+          <div className="flex items-center gap-2">
+            {document.logo_url && (
+              <img src={document.logo_url} alt="Logo" className="h-12 w-auto object-contain bg-white rounded shadow-sm mr-2" style={{maxWidth:'80px'}} />
+            )}
+            <span className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</span>
+          </div>
           <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
         </div>
         <h2 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2 break-words text-[var(--color-text)]">{document.title || document.type}</h2>

@@ -12,7 +12,6 @@ export function DocumentForm({ isOpen, onClose }) {
     { description: "", quantity: 1, unit_price: 0, currency: "PESOS" },
   ])
   const [paymentMethod, setPaymentMethod] = useState("")
-  // Cambios: pagos diferenciados por moneda
   const [paidARS, setPaidARS] = useState(0)
   const [paidUSD, setPaidUSD] = useState(0)
   const [type, setType] = useState("factura")
@@ -20,6 +19,8 @@ export function DocumentForm({ isOpen, onClose }) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [companyName, setCompanyName] = useState("")
+  const [logoFile, setLogoFile] = useState(null)
+  const [logoUrl, setLogoUrl] = useState("")
 
   const handleItemChange = (idx, field, value) => {
     setItems(items.map((item, i) => (i === idx ? { ...item, [field]: value } : item)))
@@ -49,6 +50,18 @@ export function DocumentForm({ isOpen, onClose }) {
 
   const total = totalPESOS.total + totalUSD.total
 
+  // Subida de logo a Supabase Storage
+  async function uploadLogoIfNeeded() {
+    if (!logoFile) return "";
+    const fileExt = logoFile.name.split('.').pop();
+    const fileName = `logo_${Date.now()}.${fileExt}`;
+    const { data, error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, { upsert: true });
+    if (error) return "";
+    const { data: publicUrl } = supabase.storage.from('document_logos').getPublicUrl(fileName);
+    return publicUrl?.publicUrl || "";
+  }
+
+  // Modifica handleSubmit para subir el logo antes de guardar el documento
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(""); setSuccess("")
@@ -68,6 +81,7 @@ export function DocumentForm({ isOpen, onClose }) {
       paid_usd: Number(paidUSD) || 0,
       payment_method: paymentMethod,
       company_name: companyName,
+      logo_url: logoUrl, // Agregar logo_url al payload
     }
     // Eliminar campos undefined/null
     Object.keys(payload).forEach(key => {
@@ -162,6 +176,23 @@ export function DocumentForm({ isOpen, onClose }) {
                 onChange={e => setClientEmail(e.target.value)}
               />
             </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1 text-white">Logo de la empresa (opcional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full p-2 rounded bg-neutral-700 text-white"
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  setLogoFile(e.target.files[0]);
+                  setLogoUrl("");
+                }
+              }}
+            />
+            {logoFile && (
+              <img src={URL.createObjectURL(logoFile)} alt="Logo preview" className="mt-2 h-16 object-contain bg-white rounded" />
+            )}
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 text-white">Descripción General</label>
