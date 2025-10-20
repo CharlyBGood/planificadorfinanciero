@@ -12,6 +12,7 @@ import { DeleteConfirmationModal } from "../ui/DeleteConfirmationModal"
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 import { useParams, useNavigate } from "react-router-dom"
+import { useGlobalState } from "../../contexts/GlobalState"
 
 export function CategoryView() {
   const { id } = useParams()
@@ -20,6 +21,7 @@ export function CategoryView() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [currentCategory, setCurrentCategory] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const { transactions } = useGlobalState()
 
   useEffect(() => {
     if (!id || !currentUser) return
@@ -57,6 +59,12 @@ export function CategoryView() {
   if (!currentCategory) {
     return <div className="p-8 text-center text-neutral-400">Cargando objetivo...</div>
   }
+
+  // Calcular balance real de la categoría
+  const categoryTransactions = transactions.filter(t => t.category_id === currentCategory.id)
+  const balance = categoryTransactions.reduce((acc, t) => acc + (typeof t.amount === 'number' ? t.amount : 0), 0)
+  // Calcular progreso hacia la meta
+  const progress = currentCategory.target_amount ? Math.min(100, Math.max(0, (balance / currentCategory.target_amount) * 100)) : 0
 
   const handleUpdateCategory = async (updatedData) => {
     try {
@@ -143,10 +151,14 @@ export function CategoryView() {
                 <div
                   className="h-2.5 rounded-full"
                   style={{
-                    width: `${Math.min(100, Math.max(0, 50))}%`,
+                    width: `${progress}%`,
                     backgroundColor: currentCategory.color || "#6366F1",
                   }}
                 ></div>
+              </div>
+              <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
+                <span>Balance: ${balance.toFixed(2)}</span>
+                <span>{progress.toFixed(0)}%</span>
               </div>
             </div>
           )}
