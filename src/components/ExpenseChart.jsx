@@ -63,7 +63,7 @@ export function ExpenseChart({ categoryId, targetAmount }) {
         colorScale={["#d1d5db", "#fd204d", "#51bd20"]} // gris, rojo, verde
         data={chartData}
         animate={{ duration: 200 }}
-        labels={({ datum }) => datum.x !== "Restante" ? `${datum.x}: ${getPercent(datum.y)}%` : null}
+        labels={() => null} // Quitar texto sobre la torta
         labelComponent={
           <VictoryLabel
             style={{
@@ -81,26 +81,23 @@ export function ExpenseChart({ categoryId, targetAmount }) {
         width={220}
         responsive={true}
       />
-      <div className="flex flex-row flex-wrap justify-center items-center gap-4 mt-2 w-full">
-        <div className="flex flex-col items-center min-w-[120px]">
-          <span className="font-bold text-green-600 dark:text-green-400 text-sm">Ingresos</span>
-          <span className="text-app-secondary text-xs">
-            ${totalIncomes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (
-            {getPercent(green)}%)
+      <div className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-4 mt-2 w-full">
+        <div className="flex flex-col items-center min-w-[90px] sm:min-w-[120px]">
+          <span className="font-bold text-green-600 dark:text-green-400 text-xs sm:text-sm">Ingresos</span>
+          <span className="text-app-secondary text-xs sm:text-sm">
+            ${totalIncomes.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({getPercent(green)}%)
           </span>
         </div>
-        <div className="flex flex-col items-center min-w-[120px]">
-          <span className="font-bold text-red-500 dark:text-red-400 text-sm">Gastos</span>
-          <span className="text-app-secondary text-xs">
-            ${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (
-            {getPercent(red)}%)
+        <div className="flex flex-col items-center min-w-[90px] sm:min-w-[120px]">
+          <span className="font-bold text-red-500 dark:text-red-400 text-xs sm:text-sm">Gastos</span>
+          <span className="text-app-secondary text-xs sm:text-sm">
+            ${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({getPercent(red)}%)
           </span>
         </div>
-        <div className="flex flex-col items-center min-w-[120px]">
-          <span className="font-bold text-app-secondary text-sm">Restante</span>
-          <span className="text-app-secondary text-xs">
-            ${Math.max(0, meta - (totalIncomes - totalExpenses)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (
-            {getPercent(gray)}%)
+        <div className="flex flex-col items-center min-w-[90px] sm:min-w-[120px]">
+          <span className="font-bold text-app-secondary text-xs sm:text-sm">Restante</span>
+          <span className="text-app-secondary text-xs sm:text-sm">
+            ${Math.max(0, meta - (totalIncomes - totalExpenses)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({getPercent(gray)}%)
           </span>
         </div>
       </div>
