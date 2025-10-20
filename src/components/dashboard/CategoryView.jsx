@@ -112,7 +112,7 @@ export function CategoryView() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-300">
+    <div className="w-full min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-300">
       <div
         className="p-2 sm:p-3 flex flex-row sm:justify-between sm:items-center gap-2 border-b"
         style={{ borderBottom: `2px solid ${currentCategory.color || "#6366F1"}` }}
