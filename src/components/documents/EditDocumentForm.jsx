@@ -70,7 +70,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         description: item.description || "",
         quantity: item.quantity ?? 1,
         unit_price: item.unit_price ?? 0,
-        currency: item.currency || "ARS",
+  currency: item.currency || "PESOS",
         // bonificado eliminado
       })))
       setLoading(false)
@@ -80,7 +80,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
 
   const handleChange = (field, value) => setForm(f => ({ ...f, [field]: value }))
   const handleItemChange = (idx, field, value) => setItems(items => items.map((item, i) => i === idx ? { ...item, [field]: value } : item))
-  const handleAddItem = () => setItems(items => [...items, { description: "", quantity: 1, unit_price: 0, currency: "ARS" }])
+  const handleAddItem = () => setItems(items => [...items, { description: "", quantity: 1, unit_price: 0, currency: "PESOS" }])
   const handleRemoveItem = idx => setItems(items => items.filter((_, i) => i !== idx))
 
   // Calcular totales y pagos por moneda
@@ -92,7 +92,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     return { total, paid, due: total - paid }
   }
 
-  const totalARS = getTotalsByCurrency("ARS")
+  const totalARS = getTotalsByCurrency("PESOS")
   const totalUSD = getTotalsByCurrency("USD")
   const total = totalARS.total + totalUSD.total
   const due = total - (form?.paid || 0)
@@ -256,7 +256,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
                     value={item.currency}
                     onChange={e => handleItemChange(idx, 'currency', e.target.value)}
                   >
-                    <option value="ARS">$</option>
+                    <option value="PESOS">$</option>
                     <option value="USD">U$</option>
                   </select>
                   <button
@@ -275,7 +275,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
-              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total ARS</label>
+              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total PESOS</label>
               <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalARS.total.toFixed(2)} readOnly />
             </div>
             <div className="flex-1 min-w-0">
@@ -285,7 +285,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
-              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Pagado ARS</label>
+              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Pagado PESOS</label>
               <input
                 type="number"
                 className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"

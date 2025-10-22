@@ -62,7 +62,7 @@ export function DocumentForm({ isOpen, onClose }) {
     console.log("[uploadLogoIfNeeded] Subiendo archivo:", fileName, logoFile);
     try {
       const { error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, {
-        upsert: true,
+        upsert: false,
         contentType: logoFile.type || 'image/png'
       });
       console.log("[uploadLogoIfNeeded] Resultado del upload:", error);
