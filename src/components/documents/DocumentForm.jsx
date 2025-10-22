@@ -52,20 +52,32 @@ export function DocumentForm({ isOpen, onClose }) {
 
   // Subida de logo a Supabase Storage
   async function uploadLogoIfNeeded() {
-    if (!logoFile) return "";
-    const fileExt = logoFile.name.split('.').pop();
-    const fileName = `logo_${Date.now()}.${fileExt}`;
-    const { error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, {
-      upsert: true,
-      contentType: logoFile.type || 'image/png'
-    });
-    if (error) {
-      console.log("Error al subir logo:", error);
-      setError("Error al subir logo: " + error.message);
+    console.log("[uploadLogoIfNeeded] logoFile:", logoFile);
+    if (!logoFile) {
+      console.log("[uploadLogoIfNeeded] No hay archivo para subir");
       return "";
     }
-    const { data: publicUrl } = supabase.storage.from('document_logos').getPublicUrl(fileName);
-    return publicUrl?.publicUrl || "";
+    const fileExt = logoFile.name.split('.').pop();
+    const fileName = `logo_${Date.now()}.${fileExt}`;
+    console.log("[uploadLogoIfNeeded] Subiendo archivo:", fileName, logoFile);
+    try {
+      const { error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, {
+        upsert: true,
+        contentType: logoFile.type || 'image/png'
+      });
+      console.log("[uploadLogoIfNeeded] Resultado del upload:", error);
+      if (error) {
+        setError("Error al subir logo: " + error.message);
+        return "";
+      }
+      const { data: publicUrl } = supabase.storage.from('document_logos').getPublicUrl(fileName);
+      console.log("[uploadLogoIfNeeded] publicUrl:", publicUrl);
+      return publicUrl?.publicUrl || "";
+    } catch (err) {
+      console.error("[uploadLogoIfNeeded] Excepción en upload:", err);
+      setError("Error inesperado al subir logo: " + err.message);
+      return "";
+    }
   }
 
   // Modifica handleSubmit para subir el logo antes de guardar el documento
@@ -76,6 +88,7 @@ export function DocumentForm({ isOpen, onClose }) {
     if (!title || !clientName || !items.length || !companyName) return setError("Completa todos los campos obligatorios")
     setSaving(true)
     let logo_url = logoUrl;
+
     if (logoFile) {
       logo_url = await uploadLogoIfNeeded();
       setLogoUrl(logo_url);
