@@ -10,14 +10,14 @@ function Spinner() {
     </div>
   );
 }
-// Utilidad para subir logo a Supabase Storage
+// Utilidad para subir logo a Supabase Storage (igual que DocumentForm, upsert: false)
 async function uploadLogoToSupabase(file) {
   if (!file) return "";
   const fileExt = file.name.split('.').pop();
   const fileName = `logo_${Date.now()}.${fileExt}`;
-  const { error } = await supabase.storage.from('document_bucket').upload(fileName, file, { upsert: true });
+  const { error } = await supabase.storage.from('document_logos').upload(fileName, file, { upsert: false });
   if (error) return "";
-  const { data: publicUrl } = supabase.storage.from('document_bucket').getPublicUrl(fileName);
+  const { data: publicUrl } = supabase.storage.from('document_logos').getPublicUrl(fileName);
   return publicUrl?.publicUrl || "";
 }
 import { supabase } from "../../supabase/config"
@@ -51,8 +51,8 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         client_email: doc.client_email || "",
         description: doc.description || "",
         total: doc.total ?? 0,
-        paid_pesos: doc.paid_pesos ?? 0,
-        paid_usd: doc.paid_usd ?? 0,
+        paid_pesos: doc.paid_pesos !== undefined && doc.paid_pesos !== null ? Number(doc.paid_pesos) : 0,
+        paid_usd: doc.paid_usd !== undefined && doc.paid_usd !== null ? Number(doc.paid_usd) : 0,
         payment_method: doc.payment_method || "",
         type: doc.type || "factura",
         company_name: doc.company_name || "",
@@ -68,10 +68,9 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
       setItems((itemsData || []).map(item => ({
         ...item,
         description: item.description || "",
-        quantity: item.quantity ?? 1,
-        unit_price: item.unit_price ?? 0,
-  currency: item.currency || "PESOS",
-        // bonificado eliminado
+        quantity: item.quantity !== undefined && item.quantity !== null ? Number(item.quantity) : 1,
+        unit_price: item.unit_price !== undefined && item.unit_price !== null ? Number(item.unit_price) : 0,
+        currency: item.currency || "PESOS",
       })))
       setLoading(false)
     }
@@ -92,10 +91,11 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     return { total, paid, due: total - paid }
   }
 
-  const totalARS = getTotalsByCurrency("PESOS")
+  const totalPESOS = getTotalsByCurrency("PESOS")
   const totalUSD = getTotalsByCurrency("USD")
-  const total = totalARS.total + totalUSD.total
-  const due = total - (form?.paid || 0)
+  const total = totalPESOS.total + totalUSD.total
+  // Suma de pagos
+  const due = total - (Number(form?.paid_pesos || 0) + Number(form?.paid_usd || 0))
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -276,7 +276,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
               <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total PESOS</label>
-              <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalARS.total.toFixed(2)} readOnly />
+              <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalPESOS.total.toFixed(2)} readOnly />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total USD</label>
@@ -289,9 +289,9 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
               <input
                 type="number"
                 className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"
-                value={form.paid_pesos}
-                onChange={e => handleChange('paid_pesos', Number(e.target.value))}
-                placeholder="0"
+                value={Number(form.paid_pesos).toFixed(2)}
+                onChange={e => handleChange('paid_pesos', parseFloat(e.target.value))}
+                placeholder="0.00"
                 min={0}
                 step="0.01"
               />
@@ -301,9 +301,9 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
               <input
                 type="number"
                 className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"
-                value={form.paid_usd}
-                onChange={e => handleChange('paid_usd', Number(e.target.value))}
-                placeholder="0"
+                value={Number(form.paid_usd).toFixed(2)}
+                onChange={e => handleChange('paid_usd', parseFloat(e.target.value))}
+                placeholder="0.00"
                 min={0}
                 step="0.01"
               />
