@@ -1,4 +1,15 @@
 import { useEffect, useState } from "react"
+// Spinner simple
+function Spinner() {
+  return (
+    <div className="flex justify-center items-center py-8">
+      <svg className="animate-spin h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+    </div>
+  );
+}
 // Utilidad para subir logo a Supabase Storage
 async function uploadLogoToSupabase(file) {
   if (!file) return "";
@@ -131,11 +142,20 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
   }
 
-  if (!form) return null;
+  if (loading || !form) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-200 p-0 sm:p-4">
+        <div className="bg-app-secondary rounded-lg shadow-lg w-full max-w-[98vw] sm:max-w-lg p-4 flex flex-col justify-center items-center">
+          <Spinner />
+          <span className="text-app mt-2 text-sm">Cargando documento...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-200 p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-app-secondary rounded-lg shadow-lg w-full max-w-[98vw] sm:max-w-lg p-2 sm:p-5 flex flex-col justify-center max-h-none sm:max-h-[98vh] overflow-visible sm:overflow-y-auto relative mx-auto min-h-0 mt-4 mb-4 sm:mt-0 sm:mb-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-200 p-0 sm:p-4">
+      <div className="bg-app-secondary rounded-lg shadow-lg w-full max-w-[98vw] sm:max-w-lg p-4 sm:p-6 flex flex-col justify-start max-h-[98vh] overflow-y-auto relative mx-auto min-h-0 mt-8 mb-8 sm:mt-0 sm:mb-0">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 z-10 flex items-center justify-center w-9 h-9 rounded-full btn-app bg-transparent hover:bg-red-100 dark:hover:bg-red-900 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-white transition-colors text-xl shadow-none border-none focus:outline-none"
@@ -148,22 +168,25 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-3 text-xs sm:text-sm">{error}</div>}
         {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-3 text-xs sm:text-sm">{success}</div>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
-          <div className="mb-2">
+          <div className="mb-4 mt-2 sm:mb-2 sm:mt-0">
             <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Logo de la empresa (opcional)</label>
-            <input
-              type="file"
-              accept="image/*"
-              className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"
-              onChange={e => {
-                if (e.target.files && e.target.files[0]) {
-                  setLogoFile(e.target.files[0]);
-                  setLogoPreview(URL.createObjectURL(e.target.files[0]));
-                }
-              }}
-            />
-            {(logoPreview || form.logo_url) && (
-              <img src={logoPreview || form.logo_url} alt="Logo preview" className="mt-2 h-16 object-contain bg-white rounded shadow" style={{maxWidth:'80px'}} />
-            )}
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                className="w-full sm:w-auto p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"
+                onChange={e => {
+                  if (e.target.files && e.target.files[0]) {
+                    setLogoFile(e.target.files[0]);
+                    setLogoPreview(URL.createObjectURL(e.target.files[0]));
+                  }
+                }}
+                style={{ minHeight: '44px' }}
+              />
+              {(logoPreview || form.logo_url) && (
+                <img src={logoPreview || form.logo_url} alt="Logo preview" className="h-16 w-20 object-contain bg-white rounded shadow border border-app" />
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
@@ -201,7 +224,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
             <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Items *</label>
             <div className="space-y-2">
               {items.map((item, idx) => (
-                <div key={idx} className="flex flex-col gap-1 sm:flex-row sm:gap-2 items-stretch w-full">
+                <div key={idx} className="flex flex-col sm:flex-row gap-1 sm:gap-2 items-stretch w-full relative">
                   <input
                     className="p-2 rounded bg-app-secondary text-app border border-app flex-1 min-w-0 text-xs sm:text-base"
                     placeholder="Descripción"
@@ -236,7 +259,15 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
                     <option value="ARS">$</option>
                     <option value="USD">U$</option>
                   </select>
-                  <button type="button" className="text-red-400 hover:text-red-600 self-center sm:self-auto text-lg sm:text-xl" onClick={() => handleRemoveItem(idx)} aria-label="Eliminar item">✕</button>
+                  <button
+                    type="button"
+                    className="absolute right-0 top-0 sm:static text-red-500 hover:text-red-700 bg-transparent rounded-full p-1 transition-colors text-lg sm:text-xl flex items-center justify-center"
+                    style={{ zIndex: 2 }}
+                    onClick={() => handleRemoveItem(idx)}
+                    aria-label="Eliminar item"
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
               <button type="button" className="text-green-400 hover:text-green-600 mt-1 text-xs sm:text-base" onClick={handleAddItem} aria-label="Agregar item">+ Agregar Item</button>
