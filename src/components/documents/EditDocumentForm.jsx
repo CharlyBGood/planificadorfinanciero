@@ -1,4 +1,14 @@
 import { useEffect, useState } from "react"
+// Utilidad para subir logo a Supabase Storage
+async function uploadLogoToSupabase(file) {
+  if (!file) return "";
+  const fileExt = file.name.split('.').pop();
+  const fileName = `logo_${Date.now()}.${fileExt}`;
+  const { error } = await supabase.storage.from('document_bucket').upload(fileName, file, { upsert: true });
+  if (error) return "";
+  const { data: publicUrl } = supabase.storage.from('document_bucket').getPublicUrl(fileName);
+  return publicUrl?.publicUrl || "";
+}
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 
@@ -8,6 +18,8 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [form, setForm] = useState(null)
+  const [logoFile, setLogoFile] = useState(null)
+  const [logoPreview, setLogoPreview] = useState("")
   const [items, setItems] = useState([])
 
   useEffect(() => {
@@ -33,9 +45,11 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         payment_method: doc.payment_method || "",
         type: doc.type || "factura",
         company_name: doc.company_name || "",
+        logo_url: doc.logo_url || "",
         id: doc.id,
         user_id: doc.user_id,
       })
+      setLogoPreview(doc.logo_url || "")
       const { data: itemsData } = await supabase
         .from("document_items")
         .select("*")
@@ -77,6 +91,11 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     setError(""); setSuccess("")
     if (!form.title || !form.client_name || !form.company_name || !items.length) return setError("Completa todos los campos obligatorios")
     setLoading(true)
+    let logo_url = form.logo_url || "";
+    if (logoFile) {
+      logo_url = await uploadLogoToSupabase(logoFile);
+      setLogoPreview(logo_url);
+    }
     // Validar y limpiar payload antes de enviar
     const payload = {
       user_id: currentUser.id,
@@ -90,13 +109,11 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
       paid_usd: Number(form.paid_usd) || 0,
       payment_method: form.payment_method ? String(form.payment_method) : null,
       company_name: String(form.company_name || ""),
+      logo_url,
     }
-    // Eliminar campos undefined/null y vacíos
     Object.keys(payload).forEach(key => {
       if (payload[key] === undefined || (payload[key] === null && key !== 'client_email' && key !== 'description' && key !== 'payment_method')) delete payload[key]
     })
-    // Debug: log payload antes de enviar
-    console.log('Payload enviado a Supabase:', payload)
     const { error: docError } = await supabase.from("documents").update(payload)
       .eq("id", documentId).eq("user_id", currentUser.id)
     if (docError) { setError(docError.message); setLoading(false); return }
@@ -131,6 +148,23 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         {error && <div className="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-md mb-3 text-xs sm:text-sm">{error}</div>}
         {success && <div className="bg-green-500/20 border border-green-500 text-green-300 p-3 rounded-md mb-3 text-xs sm:text-sm">{success}</div>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
+          <div className="mb-2">
+            <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Logo de la empresa (opcional)</label>
+            <input
+              type="file"
+              accept="image/*"
+              className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base"
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  setLogoFile(e.target.files[0]);
+                  setLogoPreview(URL.createObjectURL(e.target.files[0]));
+                }
+              }}
+            />
+            {(logoPreview || form.logo_url) && (
+              <img src={logoPreview || form.logo_url} alt="Logo preview" className="mt-2 h-16 object-contain bg-white rounded shadow" style={{maxWidth:'80px'}} />
+            )}
+          </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
               <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Empresa emisora *</label>

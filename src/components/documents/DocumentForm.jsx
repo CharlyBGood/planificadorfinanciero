@@ -55,8 +55,15 @@ export function DocumentForm({ isOpen, onClose }) {
     if (!logoFile) return "";
     const fileExt = logoFile.name.split('.').pop();
     const fileName = `logo_${Date.now()}.${fileExt}`;
-    const { data, error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, { upsert: true });
-    if (error) return "";
+    const { error } = await supabase.storage.from('document_logos').upload(fileName, logoFile, {
+      upsert: true,
+      contentType: logoFile.type || 'image/png'
+    });
+    if (error) {
+      console.log("Error al subir logo:", error);
+      setError("Error al subir logo: " + error.message);
+      return "";
+    }
     const { data: publicUrl } = supabase.storage.from('document_logos').getPublicUrl(fileName);
     return publicUrl?.publicUrl || "";
   }
@@ -68,6 +75,15 @@ export function DocumentForm({ isOpen, onClose }) {
     if (!currentUser) return setError("No autenticado")
     if (!title || !clientName || !items.length || !companyName) return setError("Completa todos los campos obligatorios")
     setSaving(true)
+    let logo_url = logoUrl;
+    if (logoFile) {
+      logo_url = await uploadLogoIfNeeded();
+      setLogoUrl(logo_url);
+      if (!logo_url) {
+        setSaving(false);
+        return; // No continuar si hubo error al subir el logo
+      }
+    }
     // 1. Crear documento con pagos diferenciados
     const payload = {
       user_id: currentUser.id,
@@ -81,7 +97,7 @@ export function DocumentForm({ isOpen, onClose }) {
       paid_usd: Number(paidUSD) || 0,
       payment_method: paymentMethod,
       company_name: companyName,
-      logo_url: logoUrl, // Agregar logo_url al payload
+      logo_url,
     }
     // Eliminar campos undefined/null
     Object.keys(payload).forEach(key => {
