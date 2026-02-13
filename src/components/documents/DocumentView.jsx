@@ -153,28 +153,37 @@ export function DocumentView() {
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-[var(--color-text)]">{document.created_at?.slice(0,10)}</span></div>
         <div className="text-[var(--color-text-secondary)] mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-[var(--color-text)]">{document.type}</span></div>
         <div className="overflow-x-auto mt-2">
-          <table className="min-w-full text-xs sm:text-sm text-left">
-            <thead>
-              <tr className="bg-app-secondary">
-                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">#</th>
-                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Descripción</th>
-                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Cantidad</th>
-                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Precio</th>
-                <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, idx) => (
-                <tr key={item.id} className="border-b border-neutral-700">
-                  <td className="px-2 sm:px-3 py-2">{idx + 1}</td>
-                  <td className="px-2 sm:px-3 py-2 break-words max-w-[100px] sm:max-w-xs">{item.description}</td>
-                  <td className="px-2 sm:px-3 py-2">{item.quantity}</td>
-                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && !isNaN(item.unit_price) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price)}` : '-'}</td>
-                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price * item.quantity)}` : '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {(() => {
+            const showPriceColumns = items.some(item => typeof item.unit_price === 'number' && !isNaN(item.unit_price) && Number(item.unit_price) > 0)
+            return (
+              <table className="min-w-full text-xs sm:text-sm text-left">
+                <thead>
+                  <tr className="bg-app-secondary">
+                    <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">#</th>
+                    <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Descripción</th>
+                    <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Cantidad</th>
+                    {showPriceColumns && <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Precio</th>}
+                    {showPriceColumns && <th className="px-2 sm:px-3 py-2 text-app-secondary font-semibold">Total</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, idx) => (
+                    <tr key={item.id || idx} className="border-b border-neutral-700">
+                      <td className="px-2 sm:px-3 py-2">{idx + 1}</td>
+                      <td className="px-2 sm:px-3 py-2 break-words max-w-[100px] sm:max-w-xs">{item.description}</td>
+                      <td className="px-2 sm:px-3 py-2">{item.quantity}</td>
+                      {showPriceColumns && (
+                        <>
+                          <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && !isNaN(item.unit_price) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price)}` : '-'}</td>
+                          <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price * item.quantity)}` : '-'}</td>
+                        </>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
+          })()}
         </div>
         {/* Totales diferenciados por moneda. Si no hay precios en items pero existe document.total, mostramos ese total general. */}
         <div className="flex flex-col sm:flex-row sm:justify-end mt-3 sm:mt-4 gap-1 sm:gap-2">
