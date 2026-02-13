@@ -51,6 +51,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         client_email: doc.client_email || "",
         description: doc.description || "",
         total: doc.total ?? 0,
+        delivery_deadline: doc.delivery_deadline || "",
         paid_pesos: doc.paid_pesos !== undefined && doc.paid_pesos !== null ? Number(doc.paid_pesos) : 0,
         paid_usd: doc.paid_usd !== undefined && doc.paid_usd !== null ? Number(doc.paid_usd) : 0,
         payment_method: doc.payment_method || "",
@@ -141,6 +142,7 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
       client_email: form.client_email ? String(form.client_email) : null,
       description: form.description ? String(form.description) : null,
       total: isNaN(total) ? 0 : Number(total),
+      delivery_deadline: form.delivery_deadline || null,
       paid_pesos: Number(form.paid_pesos) || 0,
       paid_usd: Number(form.paid_usd) || 0,
       payment_method: form.payment_method ? String(form.payment_method) : null,
@@ -306,6 +308,10 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
               ))}
               <button type="button" className="text-green-400 hover:text-green-600 mt-1 text-xs sm:text-base" onClick={handleAddItem} aria-label="Agregar item">+ Agregar Item</button>
             </div>
+          </div>
+          <div className="mb-1 w-full">
+            <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Plazo de entrega</label>
+            <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={form.delivery_deadline || ""} onChange={e => handleChange('delivery_deadline', e.target.value)} placeholder="Ej. Entrega en 7 días / Antes del 20/02/2026" />
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">

@@ -151,6 +151,9 @@ export function DocumentView() {
           <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Email: <span className="text-[var(--color-text)]">{document.client_email}</span></div>
         )}
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-[var(--color-text)]">{document.created_at?.slice(0,10)}</span></div>
+        {document.delivery_deadline && (
+          <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Plazo de entrega: <span className="text-[var(--color-text)]">{document.delivery_deadline.slice(0,10)}</span></div>
+        )}
         <div className="text-[var(--color-text-secondary)] mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-[var(--color-text)]">{document.type}</span></div>
         <div className="overflow-x-auto mt-2">
           {(() => {

@@ -15,6 +15,7 @@ export function DocumentForm({ isOpen, onClose }) {
   const [paidARS, setPaidARS] = useState(0)
   const [paidUSD, setPaidUSD] = useState(0)
   const [type, setType] = useState("factura")
+  const [deliveryDeadline, setDeliveryDeadline] = useState("")
   const [manualTotalPESOS, setManualTotalPESOS] = useState("")
   const [manualTotalUSD, setManualTotalUSD] = useState("")
   const [saving, setSaving] = useState(false)
@@ -42,6 +43,7 @@ export function DocumentForm({ isOpen, onClose }) {
         if (draft.type) setType(draft.type)
         if (draft.companyName) setCompanyName(draft.companyName)
         if (draft.logoUrl) setLogoUrl(draft.logoUrl)
+        if (draft.deliveryDeadline) setDeliveryDeadline(draft.deliveryDeadline)
       }
     } catch (err) {
       console.error('[DocumentForm] load draft error', err)
@@ -51,9 +53,10 @@ export function DocumentForm({ isOpen, onClose }) {
   // Auto-save draft while modal is open
   useEffect(() => {
     if (!isOpen) return
-    const draft = { title, clientName, clientEmail, description, items, paymentMethod, paidARS, paidUSD, type, companyName, logoUrl }
+    const draft = { title, clientName, clientEmail, description, items, paymentMethod, paidARS, paidUSD, type, companyName, logoUrl, deliveryDeadline }
     try { sessionStorage.setItem('docDraft_new', JSON.stringify(draft)) } catch (err) { console.error('[DocumentForm] save draft error', err) }
   }, [isOpen, title, clientName, clientEmail, description, items, paymentMethod, paidARS, paidUSD, type, companyName, logoUrl])
+
 
   const handleItemChange = (idx, field, value) => {
     setItems(items.map((item, i) => (i === idx ? { ...item, [field]: value } : item)))
@@ -139,6 +142,7 @@ export function DocumentForm({ isOpen, onClose }) {
       client_email: clientEmail,
       description,
       total,
+      delivery_deadline: deliveryDeadline || null,
       paid_pesos: Number(paidARS) || 0,
       paid_usd: Number(paidUSD) || 0,
       payment_method: paymentMethod,
@@ -170,6 +174,7 @@ export function DocumentForm({ isOpen, onClose }) {
     // Clear draft since document was saved
     try { sessionStorage.removeItem('docDraft_new') } catch (err) { /* ignore */ }
     setTitle(""); setClientName(""); setClientEmail(""); setDescription(""); setItems([{ description: "", quantity: 1, unit_price: 0, currency: "PESOS" }]); setPaymentMethod(""); setPaidARS(0); setPaidUSD(0); setType("factura"); setCompanyName("")
+    setDeliveryDeadline("")
     setManualTotalPESOS(""); setManualTotalUSD("")
     setSaving(false)
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
@@ -241,6 +246,16 @@ export function DocumentForm({ isOpen, onClose }) {
                 onChange={e => setClientEmail(e.target.value)}
               />
             </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1 text-white">Plazo de entrega</label>
+            <input
+              type="text"
+              className="w-full p-2 rounded bg-neutral-700 text-white"
+              value={deliveryDeadline}
+              onChange={e => setDeliveryDeadline(e.target.value)}
+              placeholder="Ej. Entrega en 7 días / Antes del 20/02/2026"
+            />
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 text-white">Logo de la empresa (opcional)</label>
