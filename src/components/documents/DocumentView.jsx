@@ -20,6 +20,12 @@ export function DocumentView() {
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const documentRef = useRef(null)
+  // Formateo de números con separador de miles (punto) y dos decimales
+  const formatNumber = (value) => {
+    const n = Number(value)
+    if (!isFinite(n)) return "0,00"
+    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+  }
 
   useEffect(() => {
     if (!id || !currentUser) return
@@ -134,6 +140,10 @@ export function DocumentView() {
           <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
         </div>
         <h2 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2 break-words text-[var(--color-text)]">{document.title || document.type}</h2>
+        {/* Descripción general (mostrar con preservación de saltos de línea) */}
+        {document.description && (
+          <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base whitespace-pre-wrap">{document.description}</div>
+        )}
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Cliente: <span className="text-[var(--color-text)]">{document.client_name}</span></div>
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-[var(--color-text)]">{document.created_at?.slice(0,10)}</span></div>
         <div className="text-[var(--color-text-secondary)] mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-[var(--color-text)]">{document.type}</span></div>
@@ -154,8 +164,8 @@ export function DocumentView() {
                   <td className="px-2 sm:px-3 py-2">{idx + 1}</td>
                   <td className="px-2 sm:px-3 py-2 break-words max-w-[100px] sm:max-w-xs">{item.description}</td>
                   <td className="px-2 sm:px-3 py-2">{item.quantity}</td>
-                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && !isNaN(item.unit_price) ? `${item.currency === 'USD' ? 'U$' : '$'}${item.unit_price.toFixed(2)}` : '-'}</td>
-                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? `${item.currency === 'USD' ? 'U$' : '$'}${(item.unit_price * item.quantity).toFixed(2)}` : '-'}</td>
+                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && !isNaN(item.unit_price) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price)}` : '-'}</td>
+                  <td className="px-2 sm:px-3 py-2">{typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? `${item.currency === 'USD' ? 'U$' : '$'}${formatNumber(item.unit_price * item.quantity)}` : '-'}</td>
                 </tr>
               ))}
             </tbody>
@@ -163,13 +173,13 @@ export function DocumentView() {
         </div>
         {/* Totales diferenciados por moneda */}
         <div className="flex flex-col sm:flex-row sm:justify-end mt-3 sm:mt-4 gap-1 sm:gap-2">
-          {['ARS', 'USD'].map(curr => {
+          {['PESOS', 'USD'].map(curr => {
             const symbol = curr === 'USD' ? 'U$' : '$';
             const total = items.filter(i => i.currency === curr).reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
             if (total > 0) {
               return (
                 <span key={curr} className="text-base sm:text-lg font-bold text-[var(--color-text)]">
-                  Total {symbol}: {symbol}{total.toFixed(2)}
+                  Total {symbol}: {symbol}{formatNumber(total)}
                 </span>
               );
             }
@@ -178,21 +188,36 @@ export function DocumentView() {
         </div>
         {/* Pagado y saldo a abonar diferenciados por moneda */}
         <div className="flex flex-col sm:flex-row sm:justify-end mt-1 sm:mt-2 gap-1 sm:gap-2">
-          {['ARS', 'USD'].map(curr => {
+          {['PESOS', 'USD'].map(curr => {
             const symbol = curr === 'USD' ? 'U$' : '$';
             const total = items.filter(i => i.currency === curr).reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
-            const paid = Number(document[`paid_${curr}`]) || 0;
+            const paid = curr === 'PESOS' ? (Number(document.paid_pesos) || 0) : (Number(document.paid_usd) || 0);
             const saldo = total - paid;
             if (total > 0) {
               return (
                 <span key={curr} className="text-xs sm:text-base font-semibold text-[var(--color-text)]">
-                  <span className="mr-2">Pagado {symbol}: <span className="text-green-600 dark:text-green-400">{symbol}{paid.toFixed(2)}</span></span>
-                  <span>Pendiente: <span className={saldo > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}>{symbol}{saldo.toFixed(2)}</span></span>
+                  <span className="mr-2">Pagado {symbol}: <span className="text-green-600 dark:text-green-400">{symbol}{formatNumber(paid)}</span></span>
+                  <span>Pendiente: <span className={saldo > 0 ? "text-red-600 dark:text-red-400" : "text-green-600 dark:text-green-400"}>{symbol}{formatNumber(saldo)}</span></span>
                 </span>
               );
             }
             return null;
           })}
+        </div>
+        {/* Total a pagar (resumen final) */}
+        <div className="flex justify-end mt-2">
+          {(() => {
+            const totalPesos = items.filter(i => i.currency === 'PESOS').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
+            const totalUsd = items.filter(i => i.currency === 'USD').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
+            if (totalPesos > 0 && totalUsd === 0) {
+              return <span className="text-lg font-bold">Total a pagar: ${formatNumber(totalPesos)}</span>
+            }
+            if (totalUsd > 0 && totalPesos === 0) {
+              return <span className="text-lg font-bold">Total a pagar: U${formatNumber(totalUsd)}</span>
+            }
+            // Ambos presentes: mostrar ambos totales
+            return <span className="text-lg font-bold">Total a pagar: Pesos ${formatNumber(totalPesos)} · Dólares U${formatNumber(totalUsd)}</span>
+          })()}
         </div>
         {/* Botón para descargar PDF (opcional, funcionalidad futura) */}
         <button
