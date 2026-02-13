@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { supabase } from "../../supabase/config"
 import { useAuth } from "../../contexts/AuthContext"
 
@@ -21,6 +21,37 @@ export function DocumentForm({ isOpen, onClose }) {
   const [companyName, setCompanyName] = useState("")
   const [logoFile, setLogoFile] = useState(null)
   const [logoUrl, setLogoUrl] = useState("")
+
+  // Load draft when modal opens
+  useEffect(() => {
+    if (!isOpen) return
+    try {
+      const raw = sessionStorage.getItem('docDraft_new')
+      if (raw) {
+        const draft = JSON.parse(raw)
+        if (draft.title) setTitle(draft.title)
+        if (draft.clientName) setClientName(draft.clientName)
+        if (draft.clientEmail) setClientEmail(draft.clientEmail)
+        if (draft.description) setDescription(draft.description)
+        if (Array.isArray(draft.items) && draft.items.length) setItems(draft.items)
+        if (draft.paymentMethod) setPaymentMethod(draft.paymentMethod)
+        if (draft.paidARS !== undefined) setPaidARS(draft.paidARS)
+        if (draft.paidUSD !== undefined) setPaidUSD(draft.paidUSD)
+        if (draft.type) setType(draft.type)
+        if (draft.companyName) setCompanyName(draft.companyName)
+        if (draft.logoUrl) setLogoUrl(draft.logoUrl)
+      }
+    } catch (err) {
+      console.error('[DocumentForm] load draft error', err)
+    }
+  }, [isOpen])
+
+  // Auto-save draft while modal is open
+  useEffect(() => {
+    if (!isOpen) return
+    const draft = { title, clientName, clientEmail, description, items, paymentMethod, paidARS, paidUSD, type, companyName, logoUrl }
+    try { sessionStorage.setItem('docDraft_new', JSON.stringify(draft)) } catch (err) { console.error('[DocumentForm] save draft error', err) }
+  }, [isOpen, title, clientName, clientEmail, description, items, paymentMethod, paidARS, paidUSD, type, companyName, logoUrl])
 
   const handleItemChange = (idx, field, value) => {
     setItems(items.map((item, i) => (i === idx ? { ...item, [field]: value } : item)))
@@ -134,6 +165,8 @@ export function DocumentForm({ isOpen, onClose }) {
       if (itemError) { setError(itemError.message); setSaving(false); return }
     }
     setSuccess("Documento guardado correctamente")
+    // Clear draft since document was saved
+    try { sessionStorage.removeItem('docDraft_new') } catch (err) { /* ignore */ }
     setTitle(""); setClientName(""); setClientEmail(""); setDescription(""); setItems([{ description: "", quantity: 1, unit_price: 0, currency: "PESOS" }]); setPaymentMethod(""); setPaidARS(0); setPaidUSD(0); setType("factura"); setCompanyName("")
     setSaving(false)
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)

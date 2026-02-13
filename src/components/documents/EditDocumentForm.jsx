@@ -73,6 +73,17 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
         currency: item.currency || "PESOS",
       })))
       setLoading(false)
+      // Try to load draft saved in sessionStorage for this document
+      try {
+        const raw = sessionStorage.getItem(`docDraft_${documentId}`)
+        if (raw) {
+          const draft = JSON.parse(raw)
+          if (draft.form) setForm(f => ({ ...f, ...draft.form }))
+          if (Array.isArray(draft.items) && draft.items.length) setItems(draft.items)
+        }
+      } catch (err) {
+        console.error('[EditDocumentForm] load draft error', err)
+      }
     }
     fetchData()
   }, [documentId, currentUser])
@@ -138,9 +149,18 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
     }
     setSuccess("Documento actualizado correctamente")
     setLoading(false)
+    // Remove draft for this document since it was saved
+    try { sessionStorage.removeItem(`docDraft_${documentId}`) } catch (err) { }
     onSaved && onSaved()
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
   }
+
+  // Auto-save draft for edit form
+  useEffect(() => {
+    if (!documentId) return
+    const draft = { form, items }
+    try { sessionStorage.setItem(`docDraft_${documentId}`, JSON.stringify(draft)) } catch (err) { console.error('[EditDocumentForm] save draft error', err) }
+  }, [documentId, form, items])
 
   if (loading || !form) {
     return (
