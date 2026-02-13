@@ -75,7 +75,7 @@ export function DocumentView() {
     element.classList.add("pdf-bw-mode");
     // Esperar a que el DOM se actualice
     await new Promise(res => setTimeout(res, 100));
-    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#fff" });
+    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#fff", useCORS: true, allowTaint: false, imageTimeout: 15000 });
     element.classList.remove("pdf-bw-mode");
     if (pdfButton) pdfButton.classList.remove("hide-for-pdf");
     const imgData = canvas.toDataURL("image/png");
@@ -133,7 +133,7 @@ export function DocumentView() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 sm:mb-4 gap-1 sm:gap-2">
           <div className="flex items-center gap-2">
             {document.logo_url && (
-              <img src={document.logo_url} alt="Logo" className="h-12 w-auto object-contain bg-white rounded shadow-sm mr-2" style={{maxWidth:'80px'}} />
+              <img src={document.logo_url} crossOrigin="anonymous" alt="Logo" className="h-12 w-auto object-contain bg-white rounded shadow-sm mr-2" style={{maxWidth:'80px'}} />
             )}
             {document.company_name && (
               <span className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name}</span>
