@@ -135,7 +135,9 @@ export function DocumentView() {
             {document.logo_url && (
               <img src={document.logo_url} alt="Logo" className="h-12 w-auto object-contain bg-white rounded shadow-sm mr-2" style={{maxWidth:'80px'}} />
             )}
-            <span className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name || <span className="text-[var(--color-text-secondary)] font-normal">(Sin empresa)</span>}</span>
+            {document.company_name && (
+              <span className="text-base sm:text-lg font-bold text-[var(--color-text)] text-left">{document.company_name}</span>
+            )}
           </div>
           <div className="text-sm sm:text-xl font-bold text-indigo-700 dark:text-indigo-400 text-right uppercase">{document.type}</div>
         </div>
@@ -145,6 +147,9 @@ export function DocumentView() {
           <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base whitespace-pre-wrap">{document.description}</div>
         )}
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Cliente: <span className="text-[var(--color-text)]">{document.client_name}</span></div>
+        {document.client_email && (
+          <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Email: <span className="text-[var(--color-text)]">{document.client_email}</span></div>
+        )}
         <div className="text-[var(--color-text-secondary)] mb-1 sm:mb-2 text-xs sm:text-base">Fecha: <span className="text-[var(--color-text)]">{document.created_at?.slice(0,10)}</span></div>
         <div className="text-[var(--color-text-secondary)] mb-2 sm:mb-4 text-xs sm:text-base">Tipo: <span className="text-[var(--color-text)]">{document.type}</span></div>
         <div className="overflow-x-auto mt-2">
@@ -171,20 +176,21 @@ export function DocumentView() {
             </tbody>
           </table>
         </div>
-        {/* Totales diferenciados por moneda */}
+        {/* Totales diferenciados por moneda. Si no hay precios en items pero existe document.total, mostramos ese total general. */}
         <div className="flex flex-col sm:flex-row sm:justify-end mt-3 sm:mt-4 gap-1 sm:gap-2">
-          {['PESOS', 'USD'].map(curr => {
-            const symbol = curr === 'USD' ? 'U$' : '$';
-            const total = items.filter(i => i.currency === curr).reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
-            if (total > 0) {
-              return (
-                <span key={curr} className="text-base sm:text-lg font-bold text-[var(--color-text)]">
-                  Total {symbol}: {symbol}{formatNumber(total)}
-                </span>
-              );
+          {(() => {
+            const totalPesos = items.filter(i => i.currency === 'PESOS').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
+            const totalUsd = items.filter(i => i.currency === 'USD').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
+            // If no per-item totals but a document total exists, don't render here
+            // (the final summary will show the saved total to avoid duplication)
+            if (totalPesos === 0 && totalUsd === 0 && Number(document.total) > 0) {
+              return null
             }
-            return null;
-          })}
+            const nodes = [];
+            if (totalPesos > 0) nodes.push(<span key="pesos" className="text-base sm:text-lg font-bold text-[var(--color-text)]">Total $: ${formatNumber(totalPesos)}</span>);
+            if (totalUsd > 0) nodes.push(<span key="usd" className="text-base sm:text-lg font-bold text-[var(--color-text)]">Total U$: U${formatNumber(totalUsd)}</span>);
+            return nodes;
+          })()}
         </div>
         {/* Pagado y saldo a abonar diferenciados por moneda */}
         <div className="flex flex-col sm:flex-row sm:justify-end mt-1 sm:mt-2 gap-1 sm:gap-2">
@@ -204,19 +210,20 @@ export function DocumentView() {
             return null;
           })}
         </div>
-        {/* Total a pagar (resumen final) */}
+        {/* Total a pagar (resumen final) - mostrar sólo lo que tenga valor */}
         <div className="flex justify-end mt-2">
           {(() => {
             const totalPesos = items.filter(i => i.currency === 'PESOS').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
             const totalUsd = items.filter(i => i.currency === 'USD').reduce((acc, item) => (typeof item.unit_price === 'number' && typeof item.quantity === 'number' && !isNaN(item.unit_price) && !isNaN(item.quantity) ? acc + item.unit_price * item.quantity : acc), 0);
-            if (totalPesos > 0 && totalUsd === 0) {
-              return <span className="text-lg font-bold">Total a pagar: ${formatNumber(totalPesos)}</span>
+            // Si no hay precios en items pero existe un total guardado, mostrar solo ese total (asumir pesos por defecto)
+            if (totalPesos === 0 && totalUsd === 0 && Number(document.total) > 0) {
+              return <span className="text-lg font-bold">Total a pagar: ${formatNumber(Number(document.total))}</span>
             }
-            if (totalUsd > 0 && totalPesos === 0) {
-              return <span className="text-lg font-bold">Total a pagar: U${formatNumber(totalUsd)}</span>
-            }
-            // Ambos presentes: mostrar ambos totales
-            return <span className="text-lg font-bold">Total a pagar: Pesos ${formatNumber(totalPesos)} · Dólares U${formatNumber(totalUsd)}</span>
+            const parts = []
+            if (totalPesos > 0) parts.push(`Pesos $${formatNumber(totalPesos)}`)
+            if (totalUsd > 0) parts.push(`Dólares U$${formatNumber(totalUsd)}`)
+            if (parts.length === 0) return null
+            return <span className="text-lg font-bold">Total a pagar: {parts.join(' · ')}</span>
           })()}
         </div>
         {/* Botón para descargar PDF (opcional, funcionalidad futura) */}

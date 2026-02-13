@@ -104,7 +104,21 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
 
   const totalPESOS = getTotalsByCurrency("PESOS")
   const totalUSD = getTotalsByCurrency("USD")
-  const total = totalPESOS.total + totalUSD.total
+  const [manualTotalPESOS, setManualTotalPESOS] = useState("")
+  const [manualTotalUSD, setManualTotalUSD] = useState("")
+  const total = (manualTotalPESOS !== "" ? Number(manualTotalPESOS) : totalPESOS.total) + (manualTotalUSD !== "" ? Number(manualTotalUSD) : totalUSD.total)
+
+  // If document has a stored total but item totals are zero, prefill manual total for convenience
+  useEffect(() => {
+    if (!loading && form) {
+      try {
+        const docTotal = Number(form.total) || 0
+        if (totalPESOS.total === 0 && totalUSD.total === 0 && docTotal > 0) {
+          if (!manualTotalPESOS && !manualTotalUSD) setManualTotalPESOS(String(docTotal))
+        }
+      } catch (err) { }
+    }
+  }, [loading, form, totalPESOS.total, totalUSD.total])
   // Suma de pagos
   const due = total - (Number(form?.paid_pesos || 0) + Number(form?.paid_usd || 0))
 
@@ -295,12 +309,20 @@ export function EditDocumentForm({ documentId, onClose, onSaved }) {
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">
             <div className="flex-1 min-w-0">
-              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total PESOS</label>
-              <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalPESOS.total.toFixed(2)} readOnly />
+                <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total PESOS</label>
+                {totalPESOS.total > 0 ? (
+                  <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalPESOS.total.toFixed(2)} readOnly />
+                ) : (
+                  <input type="number" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={manualTotalPESOS} onChange={e => setManualTotalPESOS(e.target.value)} />
+                )}
             </div>
             <div className="flex-1 min-w-0">
-              <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total USD</label>
-              <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalUSD.total.toFixed(2)} readOnly />
+                <label className="block text-xs sm:text-sm font-medium mb-1 text-app">Total USD</label>
+                {totalUSD.total > 0 ? (
+                  <input type="text" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={totalUSD.total.toFixed(2)} readOnly />
+                ) : (
+                  <input type="number" className="w-full p-2 rounded bg-app-secondary text-app border border-app text-xs sm:text-base" value={manualTotalUSD} onChange={e => setManualTotalUSD(e.target.value)} />
+                )}
             </div>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-4 mb-1 w-full">

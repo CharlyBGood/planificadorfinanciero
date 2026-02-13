@@ -15,6 +15,8 @@ export function DocumentForm({ isOpen, onClose }) {
   const [paidARS, setPaidARS] = useState(0)
   const [paidUSD, setPaidUSD] = useState(0)
   const [type, setType] = useState("factura")
+  const [manualTotalPESOS, setManualTotalPESOS] = useState("")
+  const [manualTotalUSD, setManualTotalUSD] = useState("")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -79,7 +81,7 @@ export function DocumentForm({ isOpen, onClose }) {
   const usesOnlyPESOS = totalPESOS.total > 0 && totalUSD.total === 0
   const usesOnlyUSD = totalUSD.total > 0 && totalPESOS.total === 0
 
-  const total = totalPESOS.total + totalUSD.total
+  const total = (manualTotalPESOS !== "" ? Number(manualTotalPESOS) : totalPESOS.total) + (manualTotalUSD !== "" ? Number(manualTotalUSD) : totalUSD.total)
 
   // Subida de logo a Supabase Storage
   async function uploadLogoIfNeeded() {
@@ -168,6 +170,7 @@ export function DocumentForm({ isOpen, onClose }) {
     // Clear draft since document was saved
     try { sessionStorage.removeItem('docDraft_new') } catch (err) { /* ignore */ }
     setTitle(""); setClientName(""); setClientEmail(""); setDescription(""); setItems([{ description: "", quantity: 1, unit_price: 0, currency: "PESOS" }]); setPaymentMethod(""); setPaidARS(0); setPaidUSD(0); setType("factura"); setCompanyName("")
+    setManualTotalPESOS(""); setManualTotalUSD("")
     setSaving(false)
     setTimeout(() => { setSuccess(""); onClose && onClose() }, 1200)
   }
@@ -313,17 +316,25 @@ export function DocumentForm({ isOpen, onClose }) {
             <div className="bg-neutral-900 rounded-lg p-4 flex flex-col gap-2 items-center">
               {usesBoth && (
                 <span className="font-bold text-white text-lg">
-                  Total en pesos: ${totalPESOS.total.toFixed(2)} &nbsp;|&nbsp; Total en dólares: U${totalUSD.total.toFixed(2)}
+                  Total en pesos: {totalPESOS.total > 0 ? `$${totalPESOS.total.toFixed(2)}` : (
+                    <input type="number" className="inline w-36 p-1 rounded bg-neutral-700 text-white text-lg" value={manualTotalPESOS} onChange={e => setManualTotalPESOS(e.target.value)} placeholder="Total PESOS" />
+                  )} &nbsp;|&nbsp; Total en dólares: {totalUSD.total > 0 ? `U$${totalUSD.total.toFixed(2)}` : (
+                    <input type="number" className="inline w-36 p-1 rounded bg-neutral-700 text-white text-lg" value={manualTotalUSD} onChange={e => setManualTotalUSD(e.target.value)} placeholder="Total USD" />
+                  )}
                 </span>
               )}
               {usesOnlyPESOS && (
                 <span className="font-bold text-white text-lg">
-                  Total en pesos: ${totalPESOS.total.toFixed(2)}
+                  Total en pesos: {totalPESOS.total > 0 ? `$${totalPESOS.total.toFixed(2)}` : (
+                    <input type="number" className="inline w-36 p-1 rounded bg-neutral-700 text-white text-lg" value={manualTotalPESOS} onChange={e => setManualTotalPESOS(e.target.value)} placeholder="Total PESOS" />
+                  )}
                 </span>
               )}
               {usesOnlyUSD && (
                 <span className="font-bold text-white text-lg">
-                  Total en dólares: U${totalUSD.total.toFixed(2)}
+                  Total en dólares: {totalUSD.total > 0 ? `U$${totalUSD.total.toFixed(2)}` : (
+                    <input type="number" className="inline w-36 p-1 rounded bg-neutral-700 text-white text-lg" value={manualTotalUSD} onChange={e => setManualTotalUSD(e.target.value)} placeholder="Total USD" />
+                  )}
                 </span>
               )}
               <div className="flex flex-col sm:flex-row gap-2 w-full justify-center mt-2">
